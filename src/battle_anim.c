@@ -367,7 +367,7 @@ static void Cmd_createsprite(void)
 
     sBattleAnimScriptPtr++;
     template = (const struct SpriteTemplate *)(T2_READ_32(sBattleAnimScriptPtr));
-    sBattleAnimScriptPtr += 4;
+    sBattleAnimScriptPtr += 4 + BS_PTR_ADJ(1);
 
     argVar = sBattleAnimScriptPtr[0];
     sBattleAnimScriptPtr++;
@@ -377,7 +377,7 @@ static void Cmd_createsprite(void)
     for (i = 0; i < argsCount; i++)
     {
         gBattleAnimArgs[i] = T1_READ_16(sBattleAnimScriptPtr);
-        sBattleAnimScriptPtr += 2;
+        sBattleAnimScriptPtr += 2 + BS_PTR_ADJ(1);
     }
 
     if (argVar & ANIMSPRITE_IS_TARGET)
@@ -422,7 +422,7 @@ static void Cmd_createvisualtask(void)
     sBattleAnimScriptPtr++;
 
     taskFunc = (TaskFunc)T2_READ_32(sBattleAnimScriptPtr);
-    sBattleAnimScriptPtr += 4;
+    sBattleAnimScriptPtr += 4 + BS_PTR_ADJ(1);
 
     taskPriority = sBattleAnimScriptPtr[0];
     sBattleAnimScriptPtr++;
@@ -433,7 +433,7 @@ static void Cmd_createvisualtask(void)
     for (i = 0; i < numArgs; i++)
     {
         gBattleAnimArgs[i] = T1_READ_16(sBattleAnimScriptPtr);
-        sBattleAnimScriptPtr += 2;
+        sBattleAnimScriptPtr += 2 + BS_PTR_ADJ(1);
     }
 
     taskId = CreateTask(taskFunc, taskPriority);
@@ -1044,7 +1044,7 @@ static void Cmd_call(void)
 {
     sBattleAnimScriptPtr++;
     sBattleAnimScriptRetAddr = sBattleAnimScriptPtr + 4;
-    sBattleAnimScriptPtr = T2_READ_PTR(sBattleAnimScriptPtr);
+    sBattleAnimScriptPtr = BS_READ_PTR(sBattleAnimScriptPtr);
 }
 
 static void Cmd_return(void)
@@ -1074,8 +1074,8 @@ static void Cmd_choosetwoturnanim(void)
 {
     sBattleAnimScriptPtr++;
     if (gAnimMoveTurn & 1)
-        sBattleAnimScriptPtr += 4;
-    sBattleAnimScriptPtr = T2_READ_PTR(sBattleAnimScriptPtr);
+        sBattleAnimScriptPtr += 4 + BS_PTR_ADJ(2);
+    sBattleAnimScriptPtr = BS_READ_PTR(sBattleAnimScriptPtr);
 }
 
 static void Cmd_jumpifmoveturn(void)
@@ -1086,15 +1086,15 @@ static void Cmd_jumpifmoveturn(void)
     sBattleAnimScriptPtr++;
 
     if (toCheck == gAnimMoveTurn)
-        sBattleAnimScriptPtr = T2_READ_PTR(sBattleAnimScriptPtr);
+        sBattleAnimScriptPtr = BS_READ_PTR(sBattleAnimScriptPtr);
     else
-        sBattleAnimScriptPtr += 4;
+        sBattleAnimScriptPtr += 4 + BS_PTR_ADJ(1);
 }
 
 static void Cmd_goto(void)
 {
     sBattleAnimScriptPtr++;
-    sBattleAnimScriptPtr = T2_READ_PTR(sBattleAnimScriptPtr);
+    sBattleAnimScriptPtr = BS_READ_PTR(sBattleAnimScriptPtr);
 }
 
 // Uses of this function that rely on a TRUE return are expecting inBattle to not be ticked as defined in contest behavior.
@@ -1619,13 +1619,13 @@ static void Cmd_createsoundtask(void)
 
     sBattleAnimScriptPtr++;
     func = (TaskFunc)T2_READ_32(sBattleAnimScriptPtr);
-    sBattleAnimScriptPtr += 4;
+    sBattleAnimScriptPtr += 4 + BS_PTR_ADJ(1);
     numArgs = sBattleAnimScriptPtr[0];
     sBattleAnimScriptPtr++;
     for (i = 0; i < numArgs; i++)
     {
         gBattleAnimArgs[i] = T1_READ_16(sBattleAnimScriptPtr);
-        sBattleAnimScriptPtr += 2;
+        sBattleAnimScriptPtr += 2 + BS_PTR_ADJ(1);
     }
     taskId = CreateTask(func, 1);
     func(taskId);
@@ -1670,18 +1670,18 @@ static void Cmd_jumpargeq(void)
     valueToCheck = T1_READ_16(sBattleAnimScriptPtr + 1);
 
     if (valueToCheck == gBattleAnimArgs[argId])
-        sBattleAnimScriptPtr = T2_READ_PTR(sBattleAnimScriptPtr + 3);
+        sBattleAnimScriptPtr = BS_READ_PTR(sBattleAnimScriptPtr + 3);
     else
-        sBattleAnimScriptPtr += 7;
+        sBattleAnimScriptPtr += 7 + BS_PTR_ADJ(1);
 }
 
 static void Cmd_jumpifcontest(void)
 {
     sBattleAnimScriptPtr++;
     if (IsContest())
-        sBattleAnimScriptPtr = T2_READ_PTR(sBattleAnimScriptPtr);
+        sBattleAnimScriptPtr = BS_READ_PTR(sBattleAnimScriptPtr);
     else
-        sBattleAnimScriptPtr += 4;
+        sBattleAnimScriptPtr += 4 + BS_PTR_ADJ(1);
 }
 
 static void Cmd_splitbgprio(void)

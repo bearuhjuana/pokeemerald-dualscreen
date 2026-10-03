@@ -1,7 +1,15 @@
 	.macro song label:req, music_player:req, unknown:req
+#ifdef PORTABLE_64BIT
+	/* 64-bit: struct Song has 8-byte header pointer, 16 bytes total. */
+	.8byte \label
+#else
 	.int \label
+#endif
 	.short \music_player
 	.short \unknown
+#ifdef PORTABLE_64BIT
+	.space 4  /* Padding to 16 bytes */
+#endif
 	.endm
 
 	.macro music_player info_struct:req, track_struct:req, num_tracks:req, unknown:req

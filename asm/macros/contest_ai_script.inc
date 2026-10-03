@@ -1,3 +1,12 @@
+/* Pointer operand: 8 bytes on 64-bit, 4 bytes otherwise. */
+	.macro bs_ptr value:req
+#ifdef PORTABLE_64BIT
+	.8byte \value
+#else
+	bs_ptr \value
+#endif
+	.endm
+
 /* A large number of the Contest AI commands go unused, so their corresponding macros in this file are similarly unused*/
 
 /* Add a positive/negative value to the score of the move being evaluated.*/
@@ -14,25 +23,25 @@
 	.macro if_appeal_num_less_than num:req, destination:req
 	.byte 0x02
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_appeal_num_more_than num:req, destination:req
 	.byte 0x03
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_appeal_num_eq num:req, destination:req
 	.byte 0x04
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_appeal_num_not_eq num:req, destination:req
 	.byte 0x05
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_last_appeal destination:req
@@ -52,25 +61,25 @@
 	.macro if_excitement_less_than num:req, destination:req
 	.byte 0x07
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_excitement_more_than num:req, destination:req
 	.byte 0x08
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_excitement_eq num:req, destination:req
 	.byte 0x09
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_excitement_not_eq num:req, destination:req
 	.byte 0x0A
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* the order that the user goes in the current appeal*/
@@ -82,25 +91,25 @@
 	.macro if_user_order_less_than num:req, destination:req
 	.byte 0x0C
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_user_order_more_than num:req, destination:req
 	.byte 0x0D
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_user_order_eq num:req, destination:req
 	.byte 0x0E
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_user_order_not_eq num:req, destination:req
 	.byte 0x0F
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* user condition*/
@@ -112,25 +121,25 @@
 	.macro if_user_condition_less_than num:req, destination:req
 	.byte 0x11
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_user_condition_more_than num:req, destination:req
 	.byte 0x12
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_user_condition_eq num:req, destination:req
 	.byte 0x13
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_user_condition_not_eq num:req, destination:req
 	.byte 0x14
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* appeal points*/
@@ -142,25 +151,25 @@
 	.macro if_points_less_than num:req, destination:req
 	.byte 0x16
 	.2byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_points_more_than num:req, destination:req
 	.byte 0x17
 	.2byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_points_eq num:req, destination:req
 	.byte 0x18
 	.2byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_points_not_eq num:req, destination:req
 	.byte 0x19
 	.2byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* preliminary (pre-appeal) judging points*/
@@ -172,25 +181,25 @@
 	.macro if_preliminary_points_less_than num:req, destination:req
 	.byte 0x1B
 	.2byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_preliminary_points_more_than num:req, destination:req
 	.byte 0x1C
 	.2byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_preliminary_points_eq num:req, destination:req
 	.byte 0x1D
 	.2byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_preliminary_points_not_eq num:req, destination:req
 	.byte 0x1E
 	.2byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* contest type*/
@@ -202,13 +211,13 @@
 	.macro if_contest_type_eq type:req, destination:req
 	.byte 0x20
 	.byte \type
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_contest_type_not_eq type:req, destination:req
 	.byte 0x21
 	.byte \type
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* move excitement (change in excitement due to move)*/
@@ -220,25 +229,25 @@
 	.macro if_move_excitement_less_than num:req, destination:req
 	.byte 0x23
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_move_excitement_more_than num:req, destination:req
 	.byte 0x24
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_move_excitement_eq num:req, destination:req
 	.byte 0x25
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_move_excitement_not_eq num:req, destination:req
 	.byte 0x26
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* move effect*/
@@ -250,13 +259,13 @@
 	.macro if_effect_eq effect:req, destination:req
 	.byte 0x28
 	.byte \effect
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_effect_not_eq effect:req, destination:req
 	.byte 0x29
 	.byte \effect
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* move effect type*/
@@ -268,13 +277,13 @@
 	.macro if_effect_type_eq type:req, destination:req
 	.byte 0x2B
 	.byte \type
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_effect_type_not_eq type:req, destination:req
 	.byte 0x2C
 	.byte \type
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* whether the current move is the most appealing in the user's moveset*/
@@ -285,7 +294,7 @@
 
 	.macro if_most_appealing_move destination:req
 	.byte 0x2E
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* whether the current move is the most jamming in the user's moveset*/
@@ -308,25 +317,25 @@
 	.macro if_num_move_hearts_less_than num:req, destination:req
 	.byte 0x32
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_num_move_hearts_more_than num:req, destination:req
 	.byte 0x33
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_num_move_hearts_eq num:req, destination:req
 	.byte 0x34
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_num_move_hearts_not_eq num:req, destination:req
 	.byte 0x35
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* number of hearts the current move's jam would remove*/
@@ -338,25 +347,25 @@
 	.macro if_num_move_jam_hearts_less_than num:req, destination:req
 	.byte 0x37
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_num_move_jam_hearts_more_than num:req, destination:req
 	.byte 0x38
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_num_move_jam_hearts_eq num:req, destination:req
 	.byte 0x39
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_num_move_jam_hearts_not_eq num:req, destination:req
 	.byte 0x3A
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* number of times current move has been used*/
@@ -368,25 +377,25 @@
 	.macro if_move_used_count_less_than num:req, destination:req
 	.byte 0x3C
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_move_used_count_more_than num:req, destination:req
 	.byte 0x3D
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_move_used_count_eq num:req, destination:req
 	.byte 0x3E
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_move_used_count_not_eq num:req, destination:req
 	.byte 0x3F
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* whether the current move is a combo starter (with another move in the moveset)*/
@@ -397,12 +406,12 @@
 
 	.macro if_combo_starter destination:req
 	.byte 0x41
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_not_combo_starter destination:req
 	.byte 0x42
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* whether the current move is a combo finisher (with another move in the moveset)*/
@@ -413,12 +422,12 @@
 
 	.macro if_combo_finisher destination:req
 	.byte 0x44
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_not_combo_finisher destination:req
 	.byte 0x45
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* whether the current move would finish a combo*/
@@ -429,12 +438,12 @@
 
 	.macro if_would_finish_combo destination:req
 	.byte 0x47
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_would_not_finish_combo destination:req
 	.byte 0x48
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* condition of mon (indexed by order)*/
@@ -448,28 +457,28 @@
 	.byte 0x4A
 	.byte \mon
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_condition_more_than mon:req, num:req, destination:req
 	.byte 0x4B
 	.byte \mon
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_condition_eq mon:req, num:req, destination:req
 	.byte 0x4C
 	.byte \mon
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_condition_not_eq mon:req, num:req, destination:req
 	.byte 0x4D
 	.byte \mon
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* whether the mon used a combo starter move*/
@@ -485,14 +494,14 @@
 	.byte 0x4F
 	.byte \mon
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_used_combo_starter_more_than mon:req, num:req, destination:req
 	.byte 0x50
 	.byte \mon
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 
@@ -500,14 +509,14 @@
 	.byte 0x51
 	.byte \mon
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_used_combo_starter_not_eq mon:req, num:req, destination:req
 	.byte 0x52
 	.byte \mon
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_used_combo_starter mon:req, destination:req
@@ -528,13 +537,13 @@
 	.macro if_can_participate mon:req, destination:req
 	.byte 0x54
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_cannot_participate mon:req, destination:req
 	.byte 0x55
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* whether the mon just completed a combo*/
@@ -542,19 +551,19 @@
 	.macro get_completed_combo mon:req
 	.byte 0x56
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_completed_combo mon:req, destination:req
 	.byte 0x57
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_not_completed_combo mon:req destination:req
 	.byte 0x58
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* comparing appeal points to another mon*/
@@ -567,25 +576,25 @@
 	.macro if_points_more_than_mon mon:req, destination:req
 	.byte 0x5A
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_points_less_than_mon mon:req, destination:req
 	.byte 0x5B
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_points_eq_mon mon:req, destination:req
 	.byte 0x5C
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_points_not_eq_mon mon:req, destination:req
 	.byte 0x5D
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* comparing preliminary judging points to another mon*/
@@ -598,25 +607,25 @@
 	.macro if_preliminary_points_more_than_mon mon:req, destination:req
 	.byte 0x5F
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_preliminary_points_less_than_mon mon:req, destination:req
 	.byte 0x60
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_preliminary_points_eq_mon mon:req, destination:req
 	.byte 0x61
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_preliminary_points_not_eq_mon mon:req, destination:req
 	.byte 0x62
 	.byte \mon
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* checking move history for move effect*/
@@ -632,7 +641,7 @@
 	.byte \mon
 	.byte \round
 	.byte \effect
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_used_moves_effect_more_than mon:req, round:req, effect:req, destination:req
@@ -640,7 +649,7 @@
 	.byte \mon
 	.byte \round
 	.byte \effect
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_used_moves_effect_eq mon:req, round:req, effect:req, destination:req
@@ -648,7 +657,7 @@
 	.byte \mon
 	.byte \round
 	.byte \effect
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_used_moves_effect_not_eq mon:req, round:req, effect:req, destination:req
@@ -656,7 +665,7 @@
 	.byte \mon
 	.byte \round
 	.byte \effect
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* checking move history for excitement*/
@@ -672,7 +681,7 @@
 	.byte \mon
 	.byte \round
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_used_moves_excitement_more_than mon:req, round:req, num:req, destination:req
@@ -680,7 +689,7 @@
 	.byte \mon
 	.byte \round
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_used_moves_excitement_eq mon:req, round:req, num:req, destination:req
@@ -688,7 +697,7 @@
 	.byte \mon
 	.byte \round
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_used_moves_excitement_not_eq mon:req, round:req, num:req, destination:req
@@ -696,7 +705,7 @@
 	.byte \mon
 	.byte \round
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* checking move history for effect type*/
@@ -712,7 +721,7 @@
 	.byte \mon
 	.byte \round
 	.byte \type
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_used_moves_effect_type_not_eq mon:req, round:req, type:req, destination:req
@@ -720,7 +729,7 @@
 	.byte \mon
 	.byte \round
 	.byte \type
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 /* generic commands*/
@@ -759,79 +768,79 @@
 	.byte 0x75
 	.byte \varId
 	.short \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_greater_than varId:req, num:req, destination:req
 	.byte 0x76
 	.byte \varId
 	.short \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_eq varId:req, num:req, destination:req
 	.byte 0x77
 	.byte \varId
 	.short \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_not_eq varId:req, num:req, destination:req
 	.byte 0x78
 	.byte \varId
 	.short \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_less_than_var varId1:req, varId2:req, destination:req
 	.byte 0x79
 	.byte \varId1
 	.byte \varId2
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_greater_than_var varId1:req, varId2:req, destination:req
 	.byte 0x7A
 	.byte \varId1
 	.byte \varId2
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_eq_var varId1:req, varId2:req, destination:req
 	.byte 0x7B
 	.byte \varId1
 	.byte \varId2
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_not_eq_var varId1:req, varId2:req, destination:req
 	.byte 0x7C
 	.byte \varId1
 	.byte \varId2
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	/* NOTE: The random commands are broken (see ContestAICmd_if_random_less_than)*/
 	.macro if_random_less_than num:req, destination:req
 	.byte 0x7D
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_random_greater_than num:req, destination:req
 	.byte 0x7E
 	.byte \num
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro goto destination:req
 	.byte 0x7F
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro call destination:req
 	.byte 0x80
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro end
@@ -844,12 +853,12 @@
 
 	.macro if_user_has_exciting_move destination:req
 	.byte 0x83
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_user_doesnt_have_exciting_move destination:req
 	.byte 0x84
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	/* This is used incorrectly to check for an effect; see ContestAICmd_check_user_has_move*/
@@ -861,11 +870,11 @@
 	.macro if_user_has_move move:req, destination:req
 	.byte 0x86
 	.short \move
-	.int \destination
+	bs_ptr \destination
 	.endm
 
 	.macro if_user_doesnt_have_move move:req, destination:req
 	.byte 0x87
 	.short \move
-	.int \destination
+	bs_ptr \destination
 	.endm

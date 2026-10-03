@@ -89,8 +89,14 @@
 	.space 1  /* Padding*/
 	.2byte \var
 	.2byte \varValue
+#ifdef PORTABLE_64BIT
+	/* 64-bit: struct CoordEvent has 8-byte script pointer at offset 16, 24 bytes total. */
+	.space 6  /* Padding to offset 16 */
+	.8byte \script
+#else
 	.space 2  /* Padding*/
 	.4byte \script
+#endif
 	inc _num_traps
 	.endm
 
@@ -108,10 +114,18 @@
 	.byte \kind
 	.space 2  /* Padding*/
 	.if \kind != BG_EVENT_HIDDEN_ITEM
+#ifdef PORTABLE_64BIT
+		/* 64-bit: union contains 8-byte script pointer, struct is 16 bytes. */
+		.8byte \arg6
+#else
 		.int \arg6
+#endif
 	.else
 		.short \arg6
 		.short \arg7
+#ifdef PORTABLE_64BIT
+		.space 4  /* Padding to 16 bytes (union is 8 bytes due to pointer member) */
+#endif
 	.endif
 	inc _num_signs
 	.endm
@@ -134,7 +148,13 @@
 	/* Defines the table of event data for a map. Mirrors the struct layout of MapEvents in include/global.fieldmap.h*/
 	.macro map_events npcs:req, warps:req, traps:req, signs:req
 	.byte _num_npcs, _num_warps, _num_traps, _num_signs
+#ifdef PORTABLE_64BIT
+	/* 64-bit: 4-byte counts + 4 pad + four 8-byte pointers = 40 bytes. */
+	.space 4  /* Padding to align pointers */
+	.8byte \npcs, \warps, \traps, \signs
+#else
 	.int \npcs, \warps, \traps, \signs
+#endif
 	reset_map_events
 	.endm
 

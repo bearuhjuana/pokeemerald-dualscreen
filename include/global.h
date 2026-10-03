@@ -138,6 +138,18 @@ int strcmp(const char *, const char*);
 #define T2_READ_32(ptr) ((ptr)[0] + ((ptr)[1] << 8) + ((ptr)[2] << 16) + ((ptr)[3] << 24))
 #define T2_READ_PTR(ptr) (void *) T2_READ_32(ptr)
 
+// Battle script bytecode pointer reader. Under PORTABLE_64BIT the macros
+// in asm/macros/battle_script.inc (etc.) emit 8-byte pointers; otherwise 4.
+#ifdef PORTABLE_64BIT
+#define BS_READ_PTR(ptr) ((void *)(uintptr_t)( \
+    ((u64)(ptr)[0])        | ((u64)(ptr)[1] << 8)  | ((u64)(ptr)[2] << 16) | ((u64)(ptr)[3] << 24) | \
+    ((u64)(ptr)[4] << 32)  | ((u64)(ptr)[5] << 40) | ((u64)(ptr)[6] << 48) | ((u64)(ptr)[7] << 56)))
+#define BS_PTR_ADJ(n) ((n) * 4) // extra bytes per pointer operand on 64-bit
+#else
+#define BS_READ_PTR(ptr) ((void *)(uintptr_t)T2_READ_32(ptr))
+#define BS_PTR_ADJ(n) (0)
+#endif
+
 #define PACK(data, shift, mask)   ( ((data) << (shift)) & (mask) )
 #define UNPACK(data, shift, mask) ( ((data) & (mask)) >> (shift) )
 

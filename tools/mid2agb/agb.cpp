@@ -22,11 +22,25 @@
 #include <cstdio>
 #include <cstdarg>
 #include <cstring>
+#include <cstdlib>
 #include <vector>
 #include "agb.h"
 #include "main.h"
 #include "midi.h"
 #include "tables.h"
+
+// When MID2AGB_64BIT=1, emit 8-byte pointers for 64-bit targets
+// (PORTABLE_64BIT). Otherwise emit 4-byte pointers for GBA/32-bit.
+static const char *GetPointerDirective()
+{
+    static const char *directive = nullptr;
+    if (directive == nullptr)
+    {
+        const char *env = std::getenv("MID2AGB_64BIT");
+        directive = (env != nullptr && env[0] == '1') ? "\t .8byte\t" : "\t .4byte\t";
+    }
+    return directive;
+}
 
 int g_agbTrack;
 
@@ -137,7 +151,7 @@ void PrintWord(const char *format, ...)
 {
     std::va_list args;
     va_start(args, format);
-    std::fprintf(g_outputFile, "\t .4byte\t");
+    std::fprintf(g_outputFile, "%s", GetPointerDirective());
     std::vfprintf(g_outputFile, format, args);
     std::fprintf(g_outputFile, "\n");
     va_end(args);
@@ -536,12 +550,12 @@ void PrintAgbFooter()
     std::fprintf(g_outputFile, "\t.byte\t%s_pri\n", g_asmLabel.c_str());
     std::fprintf(g_outputFile, "\t.byte\t%s_rev\n", g_asmLabel.c_str());
     std::fprintf(g_outputFile, "\n");
-    std::fprintf(g_outputFile, "\t.4byte\t%s_grp\n", g_asmLabel.c_str());
+    std::fprintf(g_outputFile, "%s%s_grp\n", GetPointerDirective(), g_asmLabel.c_str());
     std::fprintf(g_outputFile, "\n");
 
     // track pointers
     for (int i = 1; i <= trackCount; i++)
-        std::fprintf(g_outputFile, "\t.4byte\t%s_%u\n", g_asmLabel.c_str(), i);
+        std::fprintf(g_outputFile, "%s%s_%u\n", GetPointerDirective(), g_asmLabel.c_str(), i);
 
     std::fprintf(g_outputFile, "\n\t.end\n");
 }

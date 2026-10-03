@@ -1,11 +1,21 @@
 /* commands*/
+
+/* Pointer operand in battle script bytecode: 8 bytes on 64-bit, 4 bytes otherwise. */
+	.macro bs_ptr value:req
+#ifdef PORTABLE_64BIT
+	.8byte \value
+#else
+	.int \value
+#endif
+	.endm
+
 	.macro attackcanceler
 	.byte 0x0
 	.endm
 
 	.macro accuracycheck failPtr:req, move:req
 	.byte 0x1
-	.int \failPtr
+	bs_ptr \failPtr
 	.short \move
 	.endm
 
@@ -84,12 +94,12 @@
 
 	.macro printfromtable ptr:req
 	.byte 0x13
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro printselectionstringfromtable ptr:req
 	.byte 0x14
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro seteffectwithchance
@@ -113,14 +123,14 @@
 	.byte 0x19
 	.byte \battler
 	.byte FALSE
-	.int NULL
+	bs_ptr NULL
 	.endm
 
 	.macro tryfaintmon_spikes battler:req, ptr:req
 	.byte 0x19
 	.byte \battler
 	.byte TRUE
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro dofaintanimation battler:req
@@ -137,28 +147,28 @@
 	.byte 0x1c
 	.byte \battler
 	.int \status1
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifstatus2 battler:req, status2:req, ptr:req
 	.byte 0x1d
 	.byte \battler
 	.int \status2
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifability battler:req, ability:req, ptr:req
 	.byte 0x1e
 	.byte \battler
 	.byte \ability
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifsideaffecting battler:req, sidestatus:req, ptr:req
 	.byte 0x1f
 	.byte \battler
 	.short \sidestatus
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifstat battler:req, ifflag:req, stat:req, value:req, ptr
@@ -167,7 +177,7 @@
 	.byte \ifflag
 	.byte \stat
 	.byte \value
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifstatus3condition battler:req, status3:req, condition:req, ptr:req
@@ -175,14 +185,14 @@
 	.byte \battler
 	.int \status3
 	.byte \condition
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpiftype battler:req, type:req, ptr:req
 	.byte 0x22
 	.byte \battler
 	.byte \type
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro getexp battler:req
@@ -192,7 +202,7 @@
 
 	.macro checkteamslost ptr:req
 	.byte 0x24
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro movevaluescleanup
@@ -206,120 +216,120 @@
 
 	.macro decrementmultihit value:req
 	.byte 0x27
-	.int \value
+	bs_ptr \value
 	.endm
 
 	.macro goto ptr:req
 	.byte 0x28
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifbyte ifflag:req, val:req, byte:req, ptr:req
 	.byte 0x29
 	.byte \ifflag
-	.int \val
+	bs_ptr \val
 	.byte \byte
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifhalfword ifflag:req, val:req, hword:req, ptr:req
 	.byte 0x2a
 	.byte \ifflag
-	.int \val
+	bs_ptr \val
 	.short \hword
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifword ifflag:req, val:req, word:req, ptr:req
 	.byte 0x2b
 	.byte \ifflag
-	.int \val
+	bs_ptr \val
 	.int \word
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifarrayequal val1:req, val2:req, size:req, ptr:req
 	.byte 0x2c
-	.int \val1
-	.int \val2
+	bs_ptr \val1
+	bs_ptr \val2
 	.byte \size
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifarraynotequal val1:req, val2:req, size:req, ptr:req
 	.byte 0x2d
-	.int \val1
-	.int \val2
+	bs_ptr \val1
+	bs_ptr \val2
 	.byte \size
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro setbyte ptr:req, byte:req
 	.byte 0x2e
-	.int \ptr
+	bs_ptr \ptr
 	.byte \byte
 	.endm
 
 	.macro addbyte ptr:req, byte:req
 	.byte 0x2f
-	.int \ptr
+	bs_ptr \ptr
 	.byte \byte
 	.endm
 
 	.macro subbyte ptr:req, byte:req
 	.byte 0x30
-	.int \ptr
+	bs_ptr \ptr
 	.byte \byte
 	.endm
 
 	.macro copyarray dest:req, src:req, size:req
 	.byte 0x31
-	.int \dest
-	.int \src
+	bs_ptr \dest
+	bs_ptr \src
 	.byte \size
 	.endm
 
 	.macro copyarraywithindex dest:req, src:req, index:req, size:req
 	.byte 0x32
-	.int \dest
-	.int \src
-	.int \index
+	bs_ptr \dest
+	bs_ptr \src
+	bs_ptr \index
 	.byte \size
 	.endm
 
 	.macro orbyte ptr:req, byte:req
 	.byte 0x33
-	.int \ptr
+	bs_ptr \ptr
 	.byte \byte
 	.endm
 
 	.macro orhalfword ptr:req, hword:req
 	.byte 0x34
-	.int \ptr
+	bs_ptr \ptr
 	.short \hword
 	.endm
 
 	.macro orword ptr:req, word:req
 	.byte 0x35
-	.int \ptr
+	bs_ptr \ptr
 	.int \word
 	.endm
 
 	.macro bicbyte ptr:req, byte:req
 	.byte 0x36
-	.int \ptr
+	bs_ptr \ptr
 	.byte \byte
 	.endm
 
 	.macro bichalfword ptr:req, hword:req
 	.byte 0x37
-	.int \ptr
+	bs_ptr \ptr
 	.short \hword
 	.endm
 
 	.macro bicword ptr:req, word:req
 	.byte 0x38
-	.int \ptr
+	bs_ptr \ptr
 	.int \word
 	.endm
 
@@ -355,25 +365,25 @@
 
 	.macro jumpifaffectedbyprotect ptr:req
 	.byte 0x40
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro call ptr:req
 	.byte 0x41
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpiftype2 battler:req, type:req, ptr:req
 	.byte 0x42
 	.byte \battler
 	.byte \type
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifabilitypresent ability:req, ptr:req
 	.byte 0x43
 	.byte \ability
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro endselectionscript
@@ -384,14 +394,14 @@
 	.byte 0x45
 	.byte \battler
 	.byte \animType
-	.int \arg
+	bs_ptr \arg
 	.endm
 
 	.macro playanimation_var battler:req, animType:req, arg=NULL
 	.byte 0x46
 	.byte \battler
-	.int \animType
-	.int \arg
+	bs_ptr \animType
+	bs_ptr \arg
 	.endm
 
 	.macro setgraphicalstatchangevalues
@@ -470,13 +480,13 @@
 	.macro jumpifcantswitch battler:req, ptr:req
 	.byte 0x4f
 	.byte \battler
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro openpartyscreen battler:req, ptr:req
 	.byte 0x50
 	.byte \battler
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro switchhandleorder battler:req, state:req
@@ -521,19 +531,19 @@
 
 	.macro handlelearnnewmove learnedMovePtr:req, nothingToLearnPtr:req, isFirstMove:req
 	.byte 0x59
-	.int \learnedMovePtr
-	.int \nothingToLearnPtr
+	bs_ptr \learnedMovePtr
+	bs_ptr \nothingToLearnPtr
 	.byte \isFirstMove
 	.endm
 
 	.macro yesnoboxlearnmove forgotMovePtr:req
 	.byte 0x5a
-	.int \forgotMovePtr
+	bs_ptr \forgotMovePtr
 	.endm
 
 	.macro yesnoboxstoplearningmove noPtr:req
 	.byte 0x5b
-	.int \noPtr
+	bs_ptr \noPtr
 	.endm
 
 	.macro hitanimation battler:req
@@ -641,7 +651,7 @@
 
 	.macro jumpifplayerran ptr:req
 	.byte 0x72
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro hpthresholds battler:req
@@ -678,12 +688,12 @@
 
 	.macro jumpifnexttargetvalid ptr:req
 	.byte 0x7a
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro tryhealhalfhealth ptr:req, battler:req
 	.byte 0x7b
-	.int \ptr
+	bs_ptr \ptr
 	.byte \battler
 	.endm
 
@@ -710,12 +720,12 @@
 
 	.macro trysetrest ptr:req
 	.byte 0x81
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifnotfirstturn ptr:req
 	.byte 0x82
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro nop
@@ -724,7 +734,7 @@
 
 	.macro jumpifcantmakeasleep ptr:req
 	.byte 0x84
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro stockpile
@@ -733,12 +743,12 @@
 
 	.macro stockpiletobasedamage ptr:req
 	.byte 0x86
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro stockpiletohpheal ptr:req
 	.byte 0x87
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro negativedamage
@@ -748,7 +758,7 @@
 	.macro statbuffchange flags:req, jumpptr:req
 	.byte 0x89
 	.byte \flags
-	.int \jumpptr
+	bs_ptr \jumpptr
 	.endm
 
 	.macro normalisebuffs
@@ -774,12 +784,12 @@
 
 	.macro forcerandomswitch ptr:req
 	.byte 0x8f
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro tryconversiontypechange ptr:req
 	.byte 0x90
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro givepaydaymoney
@@ -792,7 +802,7 @@
 
 	.macro tryKO ptr:req
 	.byte 0x93
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro damagetohalftargethp
@@ -809,7 +819,7 @@
 
 	.macro tryinfatuating ptr:req
 	.byte 0x97
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro updatestatusicon battler:req
@@ -835,7 +845,7 @@
 
 	.macro mimicattackcopy ptr:req
 	.byte 0x9d
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro metronome
@@ -852,32 +862,32 @@
 
 	.macro counterdamagecalculator ptr:req
 	.byte 0xa1
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro mirrorcoatdamagecalculator ptr:req
 	.byte 0xa2
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro disablelastusedattack ptr:req
 	.byte 0xa3
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro trysetencore ptr:req
 	.byte 0xa4
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro painsplitdmgcalc ptr:req
 	.byte 0xa5
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro settypetorandomresistance ptr:req
 	.byte 0xa6
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro setalwayshitflag
@@ -886,12 +896,12 @@
 
 	.macro copymovepermanently ptr:req
 	.byte 0xa8
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro trychoosesleeptalkmove ptr:req
 	.byte 0xa9
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro setdestinybond
@@ -908,7 +918,7 @@
 
 	.macro tryspiteppreduce ptr:req
 	.byte 0xad
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro healpartystatus
@@ -917,12 +927,12 @@
 
 	.macro cursetarget ptr:req
 	.byte 0xaf
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro trysetspikes ptr:req
 	.byte 0xb0
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro setforesight
@@ -931,7 +941,7 @@
 
 	.macro trysetperishsong ptr:req
 	.byte 0xb2
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro rolloutdamagecalculation
@@ -941,7 +951,7 @@
 	.macro jumpifconfusedandstatmaxed stat:req, ptr:req
 	.byte 0xb4
 	.byte \stat
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro furycuttercalc
@@ -966,7 +976,7 @@
 
 	.macro jumpifnopursuitswitchdmg ptr:req
 	.byte 0xba
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro setsunny
@@ -975,12 +985,12 @@
 
 	.macro maxattackhalvehp ptr:req
 	.byte 0xbc
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro copyfoestats ptr:req
 	.byte 0xbd
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro rapidspinfree
@@ -993,7 +1003,7 @@
 
 	.macro recoverbasedonsunlight ptr:req
 	.byte 0xc0
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro hiddenpowercalc
@@ -1006,13 +1016,13 @@
 
 	.macro trysetfutureattack ptr:req
 	.byte 0xc3
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro trydobeatup endPtr:req, failPtr:req
 	.byte 0xc4
-	.int \endPtr
-	.int \failPtr
+	bs_ptr \endPtr
+	bs_ptr \failPtr
 	.endm
 
 	.macro setsemiinvulnerablebit
@@ -1033,7 +1043,7 @@
 
 	.macro trymemento ptr:req
 	.byte 0xc9
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro setforcedtarget
@@ -1050,48 +1060,48 @@
 
 	.macro cureifburnedparalysedorpoisoned ptr:req
 	.byte 0xcd
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro settorment ptr:req
 	.byte 0xce
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro jumpifnodamage ptr:req
 	.byte 0xcf
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro settaunt ptr:req
 	.byte 0xd0
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro trysethelpinghand ptr:req
 	.byte 0xd1
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro tryswapitems ptr:req
 	.byte 0xd2
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro trycopyability ptr:req
 	.byte 0xd3
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro trywish turnNumber:req, ptr:req
 	.byte 0xd4
 	.byte \turnNumber
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro trysetroots ptr:req
 	.byte 0xd5
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro doubledamagedealtifdamaged
@@ -1100,12 +1110,12 @@
 
 	.macro setyawn ptr:req
 	.byte 0xd7
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro setdamagetohealthdifference ptr:req
 	.byte 0xd8
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro scaledamagebyhealthratio
@@ -1114,17 +1124,17 @@
 
 	.macro tryswapabilities ptr:req
 	.byte 0xda
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro tryimprison ptr:req
 	.byte 0xdb
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro trysetgrudge ptr:req
 	.byte 0xdc
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro weightdamagecalculation
@@ -1133,22 +1143,22 @@
 
 	.macro assistattackselect ptr:req
 	.byte 0xde
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro trysetmagiccoat ptr:req
 	.byte 0xdf
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro trysetsnatch ptr:req
 	.byte 0xe0
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro trygetintimidatetarget ptr:req
 	.byte 0xe1
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro switchoutabilities battler:req
@@ -1159,7 +1169,7 @@
 	.macro jumpifhasnohp battler:req, ptr:req
 	.byte 0xe3
 	.byte \battler
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro getsecretpowereffect
@@ -1180,7 +1190,7 @@
 
 	.macro settypebasedhalvers ptr:req
 	.byte 0xe8
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro setweatherballtype
@@ -1189,17 +1199,17 @@
 
 	.macro tryrecycleitem ptr:req
 	.byte 0xea
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro settypetoenvironment ptr:req
 	.byte 0xeb
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro pursuitdoubles ptr:req
 	.byte 0xec
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro snatchsetbattlers
@@ -1220,7 +1230,7 @@
 
 	.macro trysetcaughtmondexflags ptr:req
 	.byte 0xf1
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro displaydexinfo
@@ -1229,7 +1239,7 @@
 
 	.macro trygivecaughtmonnick ptr:req
 	.byte 0xf3
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro subattackerhpbydmg

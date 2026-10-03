@@ -24,6 +24,7 @@
 #include "mods/mod_manager.h"
 
 extern void AgbMain(void);
+extern const u8 *gBattlescriptCurrInstr;
 
 #define SURVIVE_FRAMES 1200
 
@@ -137,7 +138,32 @@ void VBlankIntrWait(void)
     // Render the finished frame (exercises the software PPU on 64-bit).
     memset(sGbaImage, 0, sizeof(sGbaImage));
     DrawFrame(sGbaImage);
-    if (++sFrame >= SURVIVE_FRAMES)
+    if (++sFrame == 300)
+    {
+        // Battle-script 64-bit pointer validation.
+        // Tests that 8-byte pointers in battle scripts are read correctly.
+        // Script: goto (0x28) -> end (0x3D). Layout: [0x28][8-byte ptr][0x3D]
+        static u8 testScript[16];
+        u8 *endCmd = &testScript[9];
+        testScript[0] = 0x28;
+        uintptr_t ptrVal = (uintptr_t)endCmd;
+        for (int i = 0; i < 8; i++)
+            testScript[1 + i] = (ptrVal >> (i * 8)) & 0xFF;
+        testScript[9] = 0x3D;
+        
+        gBattlescriptCurrInstr = testScript;
+        extern void (* const gBattleScriptingCommandsTable[])(void);
+        gBattleScriptingCommandsTable[0x28](); // goto
+        
+        if (gBattlescriptCurrInstr == endCmd)
+            printf("[Harness] PASS: Battle script 8-byte pointers work on 64-bit\n");
+        else
+            printf("[Harness] FAIL: 64-bit battle script pointer mismatch\n");
+        fflush(stdout);
+        
+        gBattleScriptingCommandsTable[0x3D](); // end
+    }
+    if (sFrame >= SURVIVE_FRAMES)
     {
         printf("SURVIVED %d frames on 64-bit\n", sFrame);
         if (sSaveFile != NULL)

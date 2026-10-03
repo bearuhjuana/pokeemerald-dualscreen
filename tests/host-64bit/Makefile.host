@@ -95,6 +95,13 @@ DATA_OBJS := $(REGULAR_DATA_OBJS) $(BUILD)/obj/data/maps.o $(BUILD)/obj/data/map
 SONG_OBJS := $(patsubst sound/songs/%.s,$(BUILD)/obj/sound/songs/%.o,$(wildcard sound/songs/*.s)) \
              $(patsubst sound/songs/midi/%.s,$(BUILD)/obj/sound/songs/midi/%.o,$(MIDI_S))
 
+# Midi song .s files contain 4-byte track/voicegroup pointers from mid2agb.
+# For 64-bit, convert to 8-byte pointers via the build directory.
+$(BUILD)/obj/sound/songs/midi/%.o: sound/songs/midi/%.s
+	@mkdir -p $(dir $@) $(BUILD)/midi64
+	sed 's/\.4byte/.8byte/g' $< > $(BUILD)/midi64/$*.s
+	$(AS) $(ASFLAGS) -Iinclude -o $@ $(BUILD)/midi64/$*.s
+
 $(BUILD)/obj/data/%.o: data/%.s $(PREPROC) $(SPECIAL_IDS)
 	@mkdir -p $(dir $@) $(BUILD)/data
 	{ printf '.include "$(SPECIAL_IDS)"\n'; $(PREPROC) $< charmap.txt | $(CPP) -I include -DMODERN=1 -DPORTABLE -DUBFIX - | $(PREPROC) -ie $< charmap.txt; } > $(BUILD)/data/$*.s
@@ -150,11 +157,12 @@ MID2AGB := $(ROOT)/tools/mid2agb/mid2agb
 
 # Generate any missing song .s files from .mid (only mus_rg_encounter_gym_leader
 # is missing its .s in this fork; mid2agb regenerates it).
+# MID2AGB_64BIT=1 makes mid2agb emit 8-byte track/voicegroup pointers.
 $(BUILD)/songs.stamp: $(MID2AGB)
 	@mkdir -p $(BUILD)
 	@for mid in sound/songs/midi/*.mid; do \
 	  s="$${mid%.mid}.s"; \
-	  [ -f "$$s" ] || $(MID2AGB) "$$mid" "$$s"; \
+	  [ -f "$$s" ] || MID2AGB_64BIT=1 $(MID2AGB) "$$mid" "$$s"; \
 	done
 	@touch $@
 

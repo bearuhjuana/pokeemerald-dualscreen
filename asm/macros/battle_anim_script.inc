@@ -1,3 +1,12 @@
+/* Pointer operand: 8 bytes on 64-bit, 4 bytes otherwise. */
+	.macro bs_ptr value:req
+#ifdef PORTABLE_64BIT
+	.8byte \value
+#else
+	bs_ptr \value
+#endif
+	.endm
+
 /* commands*/
 
 	.macro loadspritegfx tag:req
@@ -12,7 +21,7 @@
 
 .macro createsprite template:req, anim_battler:req, subpriority_offset:req, argv:vararg
 	.byte 0x02
-	.int \template
+	bs_ptr \template
 	.if \anim_battler == ANIM_TARGET
 	.byte ANIMSPRITE_IS_TARGET | (\subpriority_offset & 0x7F)
 	.else
@@ -26,7 +35,7 @@
 
 	.macro createvisualtask addr:req, priority:req, argv:vararg
 	.byte 0x03
-	.int \addr
+	bs_ptr \addr
 	.byte \priority
 	.byte (.Lcreatetask_\@_2 - .Lcreatetask_\@_1) / 2
 .Lcreatetask_\@_1:
@@ -81,7 +90,7 @@
 
 	.macro call ptr:req
 	.byte 0xe
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro return
@@ -96,19 +105,19 @@
 
 	.macro choosetwoturnanim ptr1:req, ptr2:req
 	.byte 0x11
-	.int \ptr1
-	.int \ptr2
+	bs_ptr \ptr1
+	bs_ptr \ptr2
 	.endm
 
 	.macro jumpifmoveturn value:req, ptr:req
 	.byte 0x12
 	.byte \value
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro goto ptr:req
 	.byte 0x13
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro fadetobg bg:req
@@ -175,7 +184,7 @@
 
 	.macro createsoundtask addr:req, argv:vararg
 	.byte 0x1F
-	.int \addr
+	bs_ptr \addr
 	.byte (.Lcreatetask_1F_\@_2 - .Lcreatetask_1F_\@_1) / 2
 .Lcreatetask_1F_\@_1:
 	.short \argv
@@ -190,7 +199,7 @@
 	.byte 0x21
 	.byte \argId
 	.short \value
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro monbg_static battler:req
@@ -205,7 +214,7 @@
 
 	.macro jumpifcontest ptr:req
 	.byte 0x24
-	.int \ptr
+	bs_ptr \ptr
 	.endm
 
 	.macro fadetobgfromset bgOpponent:req, bgPlayer:req, bgContest:req
