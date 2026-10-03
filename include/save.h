@@ -4,12 +4,17 @@
 // Each flash sector contains SECTOR_DATA_SIZE bytes of actual data followed
 // by a 128 byte footer. Only 12 bytes of the footer are used.
 //
-// NOTE (64-bit ports): the sector data size was raised from the GBA's 3968
-// bytes. The save structs contain native pointers, which are 8 bytes on
-// 64-bit, so SaveBlock1 no longer fits in 4x3968 bytes. The flash is
-// emulated on portable ports, so sectors are simply bigger here; the sector
-// IDs and slot layout are unchanged.
+// NOTE (64-bit ports): the sector data size is raised from the GBA's 3968
+// bytes ONLY under PORTABLE_64BIT. The save structs contain native pointers,
+// which are 8 bytes on 64-bit, so SaveBlock1 (16280 bytes) no longer fits in
+// 4x3968 bytes. 32-bit ports keep the original GBA layout for save
+// compatibility. The emulated flash geometry in agb_flash_dummy.c matches
+// these sizes (see the note there).
+#ifdef PORTABLE_64BIT
 #define SECTOR_DATA_SIZE 8064
+#else
+#define SECTOR_DATA_SIZE 3968
+#endif
 #define SECTOR_FOOTER_SIZE 128
 #define SECTOR_SIZE (SECTOR_DATA_SIZE + SECTOR_FOOTER_SIZE)
 

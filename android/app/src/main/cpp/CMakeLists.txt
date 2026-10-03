@@ -20,6 +20,8 @@ file(GLOB_RECURSE GAME_C CONFIGURE_DEPENDS
     "${ROOT}/src/*.c"
     "${ROOT}/gflib/*.c")
 list(FILTER GAME_C EXCLUDE REGEX "\\.inc\\.c$")
+# Switch backend is not for Android (it includes <switch.h> unconditionally).
+list(FILTER GAME_C EXCLUDE REGEX "src/platform/(switch|nx_sys)\\.c$")
 
 set(GENERATED_C)
 foreach(SOURCE IN LISTS GAME_C)

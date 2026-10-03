@@ -20,6 +20,17 @@ const struct FlashSetupInfo DUMMY_SAVE =
     WaitForFlashWrite_DUMMY,
     dummyMaxTime,
     {
+#ifdef PORTABLE_64BIT
+        // 64-bit: sectors are 8192 bytes (SECTOR_SIZE in include/save.h),
+        // because SECTOR_DATA_SIZE is 8064. Must match save.h.
+        262144, // ROM size (32 * 8192)
+        {
+            8192, // sector size
+              13, // bit shift to multiply by sector size (8192 == 1 << 13)
+              32, // number of sectors
+               0  // appears to be unused
+        },
+#else
         131072, // ROM size
         {
             4096, // sector size
@@ -27,6 +38,7 @@ const struct FlashSetupInfo DUMMY_SAVE =
               32, // number of sectors
                0  // appears to be unused
         },
+#endif
         { 3, 1 }, // wait state setup data
         { { 0xCC, 0xCC } } // ID
     }
@@ -46,7 +58,11 @@ u16 EraseFlashChip_DUMMY(void)
 
 u16 EraseFlashSector_DUMMY(u16 sectorNum)
 {
-    u8 clearBuffer[0x1000] = { 0xFF };
+#ifdef PORTABLE_64BIT
+    u8 clearBuffer[0x2000] = { 0xFF }; // 8192-byte sectors
+#else
+    u8 clearBuffer[0x1000] = { 0xFF }; // 4096-byte sectors
+#endif
     return ProgramFlashSector_DUMMY(sectorNum, &clearBuffer[0]);
 }
 
@@ -59,6 +75,7 @@ u16 ProgramFlashByte_DUMMY(u16 sectorNum, u32 offset, u8 data)
 
 u16 ProgramFlashSector_DUMMY(u16 sectorNum, u8 *src)
 {
-    memcpy(&FLASH_BASE[sectorNum << gFlash->sector.shift], src, 0x1000);
+    // Use the geometry from DUMMY_SAVE (differs under PORTABLE_64BIT).
+    memcpy(&FLASH_BASE[sectorNum << gFlash->sector.shift], src, gFlash->sector.size);
     return 0;
 }
