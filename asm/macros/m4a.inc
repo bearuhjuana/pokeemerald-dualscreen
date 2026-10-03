@@ -5,11 +5,21 @@
 	.endm
 
 	.macro music_player info_struct:req, track_struct:req, num_tracks:req, unknown:req
+#ifdef PORTABLE_64BIT
+	/* 64-bit: struct MusicPlayer has 8-byte pointers, 24 bytes total. */
+	.8byte \info_struct
+	.8byte \track_struct
+	.byte \num_tracks
+	.space 1  /* Padding*/
+	.short \unknown
+	.space 4  /* Padding to 24 bytes */
+#else
 	.int \info_struct
 	.int \track_struct
 	.byte \num_tracks
 	.space 1  /* Padding*/
 	.short \unknown
+#endif
 	.endm
 
 	.macro voice_group label:req, starting_note

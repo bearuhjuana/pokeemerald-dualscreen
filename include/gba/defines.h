@@ -56,7 +56,9 @@ extern unsigned char PLTT[PLTT_SIZE] __attribute__ ((aligned (4)));
 #define VRAM      0x6000000
 #else
 extern unsigned char VRAM_[VRAM_SIZE] __attribute__ ((aligned (4)));
-#define VRAM (u32)VRAM_
+// NOTE (64-bit): was (u32)VRAM_, which truncates the pointer on 64-bit.
+// VRAM_ decays to unsigned char * here, which is what all use sites want.
+#define VRAM VRAM_
 #endif
 
 #define BG_VRAM           VRAM

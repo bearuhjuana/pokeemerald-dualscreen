@@ -8,7 +8,14 @@ unsigned char REG_BASE[0x400] __attribute__ ((aligned (4)));
 unsigned char PLTT[PLTT_SIZE] __attribute__ ((aligned (4)));
 unsigned char VRAM_[VRAM_SIZE] __attribute__ ((aligned (4)));
 unsigned char OAM[OAM_SIZE] __attribute__ ((aligned (4)));
+// The flash is emulated on portable ports. Its size follows the sector
+// layout in include/save.h (SECTORS_COUNT * SECTOR_SIZE). 64-bit ports use
+// bigger sectors (see the note in save.h), hence the larger array.
+#ifdef PORTABLE_64BIT
+unsigned char FLASH_BASE[262144] __attribute__ ((aligned (4)));
+#else
 unsigned char FLASH_BASE[131072] __attribute__ ((aligned (4)));
+#endif
 struct SoundInfo *SOUND_INFO_PTR;
 
 static uint32_t CPUReadMemory(const void *src)

@@ -1,0 +1,195 @@
+# Nintendo Switch (devkitA64 / libnx) build for pokeemerald-dualscreen.
+#
+# Run on a machine with devkitPro switch-dev installed:
+#     make -f Makefile.switch
+# Result: pokeemerald-dualscreen.nro (+ .nacp, .elf) in the repo root.
+#
+# Notes:
+# - Builds with -DPLATFORM_SDL2 (keeps the portable game-code feature gates:
+#   widescreen, option-menu entries, ...) AND -DPLATFORM_SWITCH (selects
+#   src/platform/switch.c + nx_sys.c instead of sdl2.c / dualscreen_bridge.c).
+# - The dual-screen bottom UI is cut on Switch (Derek, 2026-10-03): the
+#   DualScreen_* hooks are stubs in switch.c forcing classic top-screen UI.
+# - Like the Android build, data .s files are assembled for the target CPU,
+#   linked with -r, and .rodata is renamed to .data (the game writes into
+#   some asset tables at runtime).
+# - The asset pipeline (graphics conversion, map json, midi) reuses the
+#   repo's own pret rule files; host tools are built first via make_tools.mk
+#   (needs g++ and libpng-dev on the build machine).
+
+.DEFAULT_GOAL := all
+
+DEVKITPRO ?= /opt/devkitpro
+DEVKITA64 := $(DEVKITPRO)/devkitA64
+PREFIX    := $(DEVKITA64)/bin/aarch64-none-elf-
+
+CC      := $(PREFIX)gcc
+AS      := $(PREFIX)as
+LD      := $(PREFIX)ld
+OBJCOPY := $(PREFIX)objcopy
+CPP = $(CC) -E -DPORTABLE_64BIT
+ELF2NRO := $(DEVKITPRO)/tools/bin/elf2nro
+NACPTOOL := $(DEVKITPRO)/tools/bin/nacptool
+
+APP_TITLE   := Emerald DualScreen
+APP_AUTHOR  := bearuhjuana
+APP_VERSION := 0.5.0
+
+TARGET := pokeemerald-dualscreen
+BUILD  := build/switch
+GEN    := $(BUILD)/gen
+
+ARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
+
+DEFINES := -DNONMATCHING -DPORTABLE -DPLATFORM_SDL2 -DPLATFORM_SWITCH \
+           -DRENDERER_EASY_DRAW -DMODERN=1 -DUBFIX
+# 64-bit port: native pointers are 8 bytes (data layouts, save sectors).
+DEFINES += -DPORTABLE_64BIT
+INCLUDES := -iquote include -iquote gflib -I$(DEVKITPRO)/libnx/include
+
+CFLAGS  := -O3 -fno-builtin -std=gnu11 $(ARCH) $(INCLUDES) $(DEFINES)
+LDFLAGS := -specs=$(DEVKITPRO)/libnx/switch.specs $(ARCH) \
+           -L$(DEVKITPRO)/libnx/lib -lnx -lm
+
+# ---- vars expected by the pret asset-rule .mk files ----
+DATA_ASM_SUBDIR := data
+DATA_ASM_BUILDDIR := $(BUILD)/obj/data
+SONG_SUBDIR := sound/songs
+SONG_BUILDDIR := $(BUILD)/obj/sound/songs
+MID_SUBDIR := sound/songs/midi
+MID_BUILDDIR := $(BUILD)/obj/sound/songs/midi
+DATA_SRC_SUBDIR := src/data
+C_SUBDIR := src
+C_BUILDDIR := $(BUILD)/obj/src
+ASFLAGS := --defsym MODERN=1 --defsym PORTABLE=1 --defsym UBFIX=1
+FIX_UNDERSCORE := true
+ASM_PSEUDO_OP_CONV := sed -e 's/\.4byte/\.word/g;s/\.2byte/\.short/g'
+
+GFX := tools/gbagfx/gbagfx
+MAPJSON := tools/mapjson/mapjson
+JSONPROC := tools/jsonproc/jsonproc
+AIF := tools/aif2pcm/aif2pcm
+MID := tools/mid2agb/mid2agb
+PREPROC := tools/preproc/preproc
+SCANINC := tools/scaninc/scaninc
+
+# The incbin scan below needs scaninc at parse time: bootstrap the host
+# tools on a fresh clone so a single `make` does everything.
+ifeq ($(wildcard $(SCANINC)),)
+$(info Bootstrapping host tools...)
+_DUMMY := $(shell $(MAKE) -f make_tools.mk >/dev/null 2>&1)
+endif
+
+# -------------------------------------------------------------
+
+# Files .incbin'd by C and data sources (generated graphics, etc.).
+# Computed with the repo's own scaninc so the pattern rules below build
+# them BEFORE anything tries to open them (preproc resolves incbins).
+INC_DEPS := $(shell for f in $(shell find src -name '*.c' | grep -v '\.inc\.c$$') $(wildcard data/*.s); do $(SCANINC) -I include $$f 2>/dev/null; done | sort -u)
+
+C_SRCS := $(shell find src gflib -name '*.c' 2>/dev/null \
+	| grep -v '\.inc\.c$$' \
+	| grep -v '^src/platform/sdl2\.c$$' \
+	| grep -v '^src/platform/win32\.c$$' \
+	| grep -v '^src/platform/dualscreen_bridge\.c$$' \
+	| grep -v '^src/platform/voxel/')
+C_OBJS := $(patsubst %.c,$(BUILD)/obj/%.o,$(C_SRCS))
+
+# midi .s files are generated from midi.cfg: list them explicitly so make
+# knows to generate them (a wildcard would miss them on a fresh clone).
+# (Some entries lack the .mid suffix in midi.cfg; strip it if present.)
+MIDI_NAMES := $(shell grep -E '^[a-z0-9_]+(\.mid)?:' sound/songs/midi/midi.cfg | sed -E 's/^([a-z0-9_]+)(\.mid)?:.*/\1/')
+MIDI_S := $(addprefix sound/songs/midi/,$(addsuffix .s,$(MIDI_NAMES)))
+
+SPECIAL_IDS := $(GEN)/special_ids.inc
+
+$(SPECIAL_IDS): data/specials.inc
+	@mkdir -p $(dir $@)
+	awk '/^[[:space:]]+def_special[[:space:]]/ { printf ".set SPECIAL_%s, %d\n", $$2, id++ }' $< > $@
+
+# data/*.s objects: maps.o and map_events.o have their own rules in
+# map_data_rules.mk; the rest use the Android recipe (special-ids prepend).
+REGULAR_DATA_SRCS := $(filter-out data/maps.s data/map_events.s,$(wildcard data/*.s))
+REGULAR_DATA_OBJS := $(patsubst data/%.s,$(BUILD)/obj/data/%.o,$(REGULAR_DATA_SRCS))
+DATA_OBJS := $(REGULAR_DATA_OBJS) $(BUILD)/obj/data/maps.o $(BUILD)/obj/data/map_events.o
+SONG_OBJS := $(patsubst sound/songs/%.s,$(BUILD)/obj/sound/songs/%.o,$(wildcard sound/songs/*.s)) \
+             $(patsubst sound/songs/midi/%.s,$(BUILD)/obj/sound/songs/midi/%.o,$(MIDI_S))
+
+$(BUILD)/obj/data/%.o: data/%.s $(PREPROC) $(SPECIAL_IDS)
+	@mkdir -p $(dir $@) $(BUILD)/data
+	{ printf '.include "$(SPECIAL_IDS)"\n'; $(PREPROC) $< charmap.txt | $(CPP) -I include -DMODERN=1 -DPORTABLE -DUBFIX - | $(PREPROC) -ie $< charmap.txt; } > $(BUILD)/data/$*.s
+	$(AS) $(ASFLAGS) -Iinclude -o $@ $(BUILD)/data/$*.s
+
+$(BUILD)/game_data.o: $(DATA_OBJS) $(SONG_OBJS)
+	$(LD) -r -o $@.tmp $^
+	$(OBJCOPY) --rename-section .rodata=.data,alloc,load,data,contents $@.tmp $@
+
+ELF2NRO_FLAGS := --nacp=$(TARGET).nacp
+ifneq ($(wildcard icon.jpg),)
+ELF2NRO_FLAGS += --icon=icon.jpg
+endif
+
+.PHONY: all clean tools
+
+all: tools $(AUTO_GEN_TARGETS) $(TARGET).nro
+
+tools:
+	$(MAKE) -f make_tools.mk
+
+# Pret asset pipeline rules (graphics conversion, map json, midi, ...).
+include graphics_file_rules.mk
+include map_data_rules.mk
+include spritesheet_rules.mk
+include json_data_rules.mk
+include audio_rules.mk
+
+# Generic graphics conversions (from Makefile_pc).
+%.1bpp: %.png  ; $(GFX) $< $@
+%.4bpp: %.png  ; $(GFX) $< $@
+%.8bpp: %.png  ; $(GFX) $< $@
+%.gbapal: %.pal ; $(GFX) $< $@
+%.gbapal: %.png ; $(GFX) $< $@
+%.lz: % ; $(GFX) $< $@
+%.rl: % ; $(GFX) $< $@
+
+# C files: same recipe as the Android build (-E with the game defines, then
+# the charmap preproc, then compile the result).
+$(BUILD)/obj/%.o: %.c $(PREPROC)
+	@mkdir -p $(dir $@) $(GEN)/$(dir $*)
+	$(CC) -E -std=gnu99 $(INCLUDES) $(DEFINES) $< -o $(GEN)/$*.i
+	$(PREPROC) $(GEN)/$*.i charmap.txt > $(GEN)/$*.c
+	$(CC) $(CFLAGS) -c $(GEN)/$*.c -o $@
+
+# C objects need the generated headers (map_groups.h, wild_encounters.h, ...)
+# and the generated graphics they .incbin.
+$(C_OBJS): $(AUTO_GEN_TARGETS) $(INC_DEPS)
+$(DATA_OBJS) $(SONG_OBJS): $(INC_DEPS)
+
+$(TARGET).elf: $(C_OBJS) $(BUILD)/game_data.o
+	$(CC) $(LDFLAGS) $^ -o $@
+
+$(TARGET).nacp:
+	$(NACPTOOL) --create "$(APP_TITLE)" "$(APP_AUTHOR)" "$(APP_VERSION)" $@
+
+# The repo's audio_rules.mk .o recipes don't create their obj dirs
+# (Makefile_pc does it via $(shell mkdir ...) at parse time).
+$(shell mkdir -p $(BUILD)/obj/sound/songs $(BUILD)/obj/sound/songs/midi)
+
+MID2AGB := $(ROOT)/tools/mid2agb/mid2agb
+
+# Generate any missing song .s files from .mid (only mus_rg_encounter_gym_leader
+# is missing its .s in this fork; mid2agb regenerates it).
+$(BUILD)/songs.stamp: $(MID2AGB)
+	@mkdir -p $(BUILD)
+	@for mid in sound/songs/midi/*.mid; do \
+	  s="$${mid%.mid}.s"; \
+	  [ -f "$$s" ] || $(MID2AGB) "$$mid" "$$s"; \
+	done
+	@touch $@
+
+$(TARGET).nro: $(TARGET).elf | $(BUILD)/songs.stamp
+# Song .o files need their .s generated first (order-only: don't force rebuild).
+$(SONG_OBJS): | $(BUILD)/songs.stamp
+
+clean:
+	rm -rf $(BUILD) $(TARGET).elf $(TARGET).nro $(TARGET).nacp

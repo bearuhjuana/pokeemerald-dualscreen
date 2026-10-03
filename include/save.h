@@ -1,9 +1,15 @@
 #ifndef GUARD_SAVE_H
 #define GUARD_SAVE_H
 
-// Each 4 KiB flash sector contains 3968 bytes of actual data followed by a 128 byte footer.
-// Only 12 bytes of the footer are used.
-#define SECTOR_DATA_SIZE 3968
+// Each flash sector contains SECTOR_DATA_SIZE bytes of actual data followed
+// by a 128 byte footer. Only 12 bytes of the footer are used.
+//
+// NOTE (64-bit ports): the sector data size was raised from the GBA's 3968
+// bytes. The save structs contain native pointers, which are 8 bytes on
+// 64-bit, so SaveBlock1 no longer fits in 4x3968 bytes. The flash is
+// emulated on portable ports, so sectors are simply bigger here; the sector
+// IDs and slot layout are unchanged.
+#define SECTOR_DATA_SIZE 8064
 #define SECTOR_FOOTER_SIZE 128
 #define SECTOR_SIZE (SECTOR_DATA_SIZE + SECTOR_FOOTER_SIZE)
 

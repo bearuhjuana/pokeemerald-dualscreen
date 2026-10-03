@@ -4,7 +4,13 @@
 #ifndef PORTABLE
 #define FLASH_BASE ((u8 *)0xE000000)
 #else
+// Size follows the sector layout in include/save.h (SECTORS_COUNT *
+// SECTOR_SIZE). 64-bit portable ports use bigger sectors (see save.h).
+#ifdef PORTABLE_64BIT
+extern unsigned char FLASH_BASE[262144];
+#else
 extern unsigned char FLASH_BASE[131072];
+#endif
 #endif
 
 #define FLASH_WRITE(addr, data) ((*(vu8 *)(FLASH_BASE + (addr))) = (data))

@@ -9,14 +9,22 @@
 	/* Defines a map script. 'type' is any MAP_SCRIPT_* constant (see include/constants/map_scripts.h)*/
 	.macro map_script type:req, script:req
 	.byte \type
+#ifdef PORTABLE_64BIT
+	.8byte \script
+#else
 	.int \script
+#endif
 	.endm
 
 	/* Defines an entry in a map script table (for either ON_WARP_INTO_MAP_TABLE or ON_FRAME_TABLE)*/
 	.macro map_script_2 var:req, compare:req, script:req
 	.short \var
 	.short \compare
+#ifdef PORTABLE_64BIT
+	.8byte \script
+#else
 	.int \script
+#endif
 	.endm
 
 	/* Defines an object event template for map data, to be used by a normal object. Mirrors the struct layout of ObjectEventTemplate in include/global.fieldmap.h*/
@@ -32,9 +40,19 @@
 	.space 1  /* Padding*/
 	.short \trainer_type
 	.short \sight_radius_tree_etc
+#ifdef PORTABLE_64BIT
+	/* 64-bit: struct ObjectEventTemplate has an 8-byte script pointer at
+	offset 16 and is 32 bytes total. */
+	.8byte \script
+#else
 	.int \script
+#endif
 	.short \event_flag
+#ifdef PORTABLE_64BIT
+	.space 6  /* Padding to 32 bytes */
+#else
 	.space 2  /* Padding*/
+#endif
 	inc _num_npcs
 	.endm
 

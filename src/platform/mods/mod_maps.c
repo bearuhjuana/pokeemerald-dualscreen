@@ -3,7 +3,6 @@
 #include "mod_manager.h"
 #include "global.fieldmap.h"
 #include "overworld.h"
-extern void *malloc(unsigned int);
 #include <string.h>
 
 

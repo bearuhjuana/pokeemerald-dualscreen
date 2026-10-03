@@ -40,8 +40,7 @@ static u8* AllocateEmeraldString(ScriptOverride *ov, const char *str) {
     
     int len = strlen(str);
     if (len >= MAX_STRING_SIZE) len = MAX_STRING_SIZE - 1;
-    
-    extern void *malloc(unsigned int);
+
     u8 *emStr = malloc(len + 1);
     
     for (int i = 0; i < len; i++) {
@@ -98,8 +97,7 @@ void ModScripts_LoadOverrides(LoadedMod *mod) {
             ov->mapNum = mapNumObj->valueint;
             ov->objectIndex = objectIndexObj->valueint;
             ov->numStrings = 0;
-            
-            extern void *malloc(unsigned int);
+
             ov->bytecode = malloc(MAX_BYTECODE_SIZE);
             int pc = 0;
             
@@ -156,7 +154,14 @@ void ModScripts_LoadOverrides(LoadedMod *mod) {
                                 // loadpointer 0, str
                                 ov->bytecode[pc++] = 0x0F; // loadword
                                 ov->bytecode[pc++] = 0x00; // param 0
-                                *(u32*)&ov->bytecode[pc] = (u32)emStr;
+                                // NOTE (64-bit): this truncates the pointer to
+                                // 32 bits. The mod system is permanently
+                                // disabled on 64-bit ports (gModsEnabled has no
+                                // toggle outside desktop CLI args), so this
+                                // path is unreachable here; reworking the
+                                // script bytecode for 64-bit pointers is a
+                                // separate job if mods are ever enabled.
+                                *(u32*)&ov->bytecode[pc] = (u32)(uintptr_t)emStr;
                                 pc += 4;
                                 // callstd 4 (msgbox type: face player)
                                 ov->bytecode[pc++] = 0x09; // callstd

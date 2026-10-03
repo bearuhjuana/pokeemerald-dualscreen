@@ -287,9 +287,28 @@ u8 *MapHeaderGetScriptTable(u8 tag)
         if (*mapScripts == tag)
         {
             mapScripts++;
+#ifdef PORTABLE_64BIT
+            // 64-bit: map_script macro emits 8-byte pointers.
+            {
+                uintptr_t addr = (uintptr_t)mapScripts[0]
+                               | ((uintptr_t)mapScripts[1] << 8)
+                               | ((uintptr_t)mapScripts[2] << 16)
+                               | ((uintptr_t)mapScripts[3] << 24)
+                               | ((uintptr_t)mapScripts[4] << 32)
+                               | ((uintptr_t)mapScripts[5] << 40)
+                               | ((uintptr_t)mapScripts[6] << 48)
+                               | ((uintptr_t)mapScripts[7] << 56);
+                return (u8 *)addr;
+            }
+#else
             return T2_READ_PTR(mapScripts);
+#endif
         }
+#ifdef PORTABLE_64BIT
+        mapScripts += 9; // 1 byte type + 8 byte pointer
+#else
         mapScripts += 5;
+#endif
     }
 }
 
@@ -324,8 +343,24 @@ u8 *MapHeaderCheckScriptTable(u8 tag)
 
         // Run map script if vars are equal
         if (VarGet(varIndex1) == VarGet(varIndex2))
+#ifdef PORTABLE_64BIT
+        {
+            // 64-bit: map_script_2 macro emits 8-byte pointers.
+            uintptr_t addr = (uintptr_t)ptr[0]
+                           | ((uintptr_t)ptr[1] << 8)
+                           | ((uintptr_t)ptr[2] << 16)
+                           | ((uintptr_t)ptr[3] << 24)
+                           | ((uintptr_t)ptr[4] << 32)
+                           | ((uintptr_t)ptr[5] << 40)
+                           | ((uintptr_t)ptr[6] << 48)
+                           | ((uintptr_t)ptr[7] << 56);
+            return (u8 *)addr;
+        }
+        ptr += 8;
+#else
             return T2_READ_PTR(ptr);
         ptr += 4;
+#endif
     }
 }
 
