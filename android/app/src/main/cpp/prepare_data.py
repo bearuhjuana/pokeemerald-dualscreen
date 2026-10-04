@@ -10,9 +10,11 @@ from pathlib import Path
 def prepare_song(text, portable_64bit):
     # Song assembly contains bytecode and pointer directives, never numeric
     # 32-bit fields. Widen both checked-in .int songs and mid2agb .4byte songs.
+    # Use line-anchored patterns to avoid mangling labels containing these
+    # substrings (e.g. mus_abandoned_ship_8).
     pointer_op = ".8byte" if portable_64bit else ".int"
-    text = re.sub(r"\.(?:4byte|8byte|word|int|long)\b", pointer_op, text)
-    text = re.sub(r"\.2byte\b", ".short", text)
+    text = re.sub(r"(?m)^(\s*)\.(?:4byte|8byte|word|int|long)\b", rf"\1{pointer_op}", text)
+    text = re.sub(r"(?m)^(\s*)\.2byte\b", r"\1.short", text)
     text = re.sub(r"(?m)^\s*\.end\s*$", "", text)
     alignment = 8 if portable_64bit else 4
     text = re.sub(r"(?m)^(\s*)\.align\s+2\s*$", rf"\1.balign {alignment}", text)
