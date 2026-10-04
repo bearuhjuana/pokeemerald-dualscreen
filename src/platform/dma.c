@@ -12,6 +12,10 @@ struct DMATransfer {
         vu16 *dst16;
         vu32 *dst32;
     };
+#ifdef PORTABLE_64BIT
+    // DMA address registers stay 32-bit; keep the reload address at native width.
+    void *initialDst;
+#endif
     u32 size;
     u16 control;
 } DMAList[DMA_COUNT];
@@ -77,7 +81,11 @@ void RunDMAs(u32 type)
                 dma->size = ((&REG_DMA0CNT)[dmaNum * 3] & 0x1FFFF);
                 if (((dma->control) & DMA_DEST_MASK) == DMA_DEST_RELOAD)
                 {
+#ifdef PORTABLE_64BIT
+                    dma->dst = dma->initialDst;
+#else
                     dma->dst = (void *)(uintptr_t)((&REG_DMA0DAD)[dmaNum * 3]);
+#endif
                 }
             }
             else
@@ -103,6 +111,9 @@ void DmaSet(int dmaNum, const void *src, void *dest, u32 control)
     struct DMATransfer *dma = &DMAList[dmaNum];
     dma->src = src;
     dma->dst = dest;
+#ifdef PORTABLE_64BIT
+    dma->initialDst = dest;
+#endif
     dma->size = control & 0x1ffff;
     dma->control = control >> 16;
 
