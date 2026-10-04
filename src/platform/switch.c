@@ -26,6 +26,7 @@
 #include "gba/io_reg.h"
 #include "cgb_audio.h"
 #include "platform.h"
+#include "platform/dma.h"
 #include "platform/framedraw.h"
 #include "platform/dualscreen.h"
 #include "mods/mod_manager.h"
@@ -467,6 +468,17 @@ int main(int argc, char *argv[])
         for (int i = 0; i < steps; i++)
         {
             NX_MainFrameWait();
+
+            // Emulate GBA VBlank interrupt (mirrors sdl2.c).
+            // This is what advances the game state: VBlank callbacks,
+            // buffered GPU register copies, DMA processing, audio, etc.
+            REG_DISPSTAT |= INTR_FLAG_VBLANK;
+            RunDMAs(DMA_HBLANK);
+            if (REG_DISPSTAT & DISPSTAT_VBLANK_INTR)
+            {
+                gIntrTable[4]();
+            }
+            REG_DISPSTAT &= ~INTR_FLAG_VBLANK;
 
             // Keep the music at normal tempo while fast-forwarded: skip the
             // sound engine on frames where enough audio is already queued.
