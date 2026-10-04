@@ -4,8 +4,20 @@
 #include <switch.h>
 #include <malloc.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "nx_sys.h"
+
+// Simple SD card logging for debugging.
+static void NX_Log(const char *msg)
+{
+    FILE *f = fopen("sdmc:/switch/pokeemerald-dualscreen/log.txt", "a");
+    if (f)
+    {
+        fprintf(f, "%s\n", msg);
+        fclose(f);
+    }
+}
 
 // ---------------------------------------------------------------- video ---
 
@@ -51,12 +63,24 @@ static bool sFrameDone;
 void NX_Init(void)
 {
     fsdevMountSdmc();
+    NX_Log("NX_Init: start");
 
     sWindow = nwindowGetDefault();
-    if (R_SUCCEEDED(framebufferCreate(&sFramebuffer, sWindow, FB_WIDTH, FB_HEIGHT,
-                                      PIXEL_FORMAT_RGBA_8888, 2))
-        && R_SUCCEEDED(framebufferMakeLinear(&sFramebuffer)))
-        sVideoOk = true;
+    NX_Log(sWindow ? "NX_Init: got window" : "NX_Init: window is NULL");
+    if (sWindow != NULL)
+    {
+        Result rc1 = framebufferCreate(&sFramebuffer, sWindow, FB_WIDTH, FB_HEIGHT,
+                                       PIXEL_FORMAT_RGBA_8888, 2);
+        NX_Log(R_SUCCEEDED(rc1) ? "NX_Init: framebufferCreate OK" : "NX_Init: framebufferCreate FAILED");
+        if (R_SUCCEEDED(rc1))
+        {
+            Result rc2 = framebufferMakeLinear(&sFramebuffer);
+            NX_Log(R_SUCCEEDED(rc2) ? "NX_Init: makeLinear OK" : "NX_Init: makeLinear FAILED");
+            if (R_SUCCEEDED(rc2))
+                sVideoOk = true;
+        }
+    }
+    NX_Log(sVideoOk ? "NX_Init: video OK" : "NX_Init: video FAILED");
 
     padConfigureInput(1, HidNpadStyleSet_NpadStandard);
     padInitializeDefault(&sPad);
