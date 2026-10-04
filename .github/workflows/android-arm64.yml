@@ -26,6 +26,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.2.1'
+          validate-wrappers: false
       - uses: android-actions/setup-android@v3
       - name: Install build dependencies
         run: |
