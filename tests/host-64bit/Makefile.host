@@ -118,6 +118,10 @@ include spritesheet_rules.mk
 include json_data_rules.mk
 include audio_rules.mk
 
+# MIDI assembly has one generator: the midi.cfg rules in audio_rules.mk.
+# A separate missing-song loop races those rules on a clean parallel build.
+$(MIDI_S): $(MID)
+
 # Share Android's song conversion: pointer widths and SongHeader padding
 # must both match LP64, including checked-in non-MIDI songs.
 PREPARE_SONG := android/app/src/main/cpp/prepare_data.py
@@ -162,23 +166,8 @@ $(HARNESS_OBJ): $(HARNESS)
 # (Makefile_pc does it via $(shell mkdir ...) at parse time).
 $(shell mkdir -p $(BUILD)/obj/sound/songs $(BUILD)/obj/sound/songs/midi)
 
-MID2AGB := $(ROOT)/tools/mid2agb/mid2agb
-
-# Generate any missing song .s files from .mid (only mus_rg_encounter_gym_leader
-# is missing its .s in this fork; mid2agb regenerates it).
-# MID2AGB_64BIT=1 makes mid2agb emit 8-byte track/voicegroup pointers.
-$(BUILD)/songs.stamp: $(MID2AGB)
-	@mkdir -p $(BUILD)
-	@for mid in sound/songs/midi/*.mid; do \
-	  s="$${mid%.mid}.s"; \
-	  [ -f "$$s" ] || MID2AGB_64BIT=1 $(MID2AGB) "$$mid" "$$s"; \
-	done
-	@touch $@
-
-$(BUILD)/host_test: $(C_OBJS) $(HARNESS_OBJ) $(BUILD)/game_data.o | $(BUILD)/songs.stamp
+$(BUILD)/host_test: $(C_OBJS) $(HARNESS_OBJ) $(BUILD)/game_data.o
 	$(CC) -no-pie -o $@ $^ -lm
-# Song .o files need their .s generated first (order-only: don't force rebuild).
-$(SONG_OBJS): | $(BUILD)/songs.stamp
 
 clean:
 	rm -rf $(BUILD)
