@@ -63,7 +63,8 @@ jobs:
           make -f tests/host-64bit/Makefile.host -j2
           timeout 120s ./build/host-test/host_test | tee build/host-test/smoke.log
           grep -F 'SURVIVED 1200 frames on 64-bit' build/host-test/smoke.log
-          grep -F 'PASS: Battle script 8-byte pointers work on 64-bit' build/host-test/smoke.log
+          grep -F 'PASS: goto 8-byte pointer works' build/host-test/smoke.log
+          grep -F 'PASS: jumpifbyte interior offsets work on 64-bit' build/host-test/smoke.log
       - name: Build Android ARM64 APK
         run: gradle -p android --no-daemon :app:assembleDebug
       - name: Verify packaged architecture
