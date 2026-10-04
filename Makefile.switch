@@ -48,7 +48,7 @@ DEFINES += -DPORTABLE_64BIT
 INCLUDES := -iquote include -iquote gflib -I$(DEVKITPRO)/libnx/include
 
 CFLAGS  := -O3 -fno-builtin -std=gnu11 $(ARCH) $(INCLUDES) $(DEFINES)
-LDFLAGS := -specs=$(DEVKITPRO)/libnx/switch.specs $(ARCH) \
+LDFLAGS := -specs=$(DEVKITPRO)/libnx/switch.specs $(ARCH) -no-pie \
            -L$(DEVKITPRO)/libnx/lib -lnx -lm
 
 # ---- vars expected by the pret asset-rule .mk files ----
