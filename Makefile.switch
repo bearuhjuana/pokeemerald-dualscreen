@@ -48,8 +48,8 @@ DEFINES += -DPORTABLE_64BIT
 INCLUDES := -iquote include -iquote gflib -I$(DEVKITPRO)/libnx/include
 
 CFLAGS  := -O3 -fno-builtin -std=gnu11 $(ARCH) $(INCLUDES) $(DEFINES)
-LDFLAGS := -specs=$(DEVKITPRO)/libnx/switch.specs $(ARCH) \
-           $(DEVKITPRO)/libnx/lib/libnx.a -lm
+LDFLAGS := -specs=$(DEVKITPRO)/libnx/switch.specs $(ARCH)
+LIBS := $(DEVKITPRO)/libnx/lib/libnx.a -lm
 
 # ---- vars expected by the pret asset-rule .mk files ----
 DATA_ASM_SUBDIR := data
@@ -188,7 +188,7 @@ $(C_OBJS): $(AUTO_GEN_TARGETS) $(INC_DEPS)
 $(DATA_OBJS) $(SONG_OBJS): $(INC_DEPS)
 
 $(TARGET).elf: $(C_OBJS) $(BUILD)/game_data.o
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
 
 $(TARGET).nacp:
 	$(NACPTOOL) --create "$(APP_TITLE)" "$(APP_AUTHOR)" "$(APP_VERSION)" $@
