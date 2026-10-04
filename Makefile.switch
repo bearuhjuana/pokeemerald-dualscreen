@@ -175,6 +175,7 @@ $(TARGET).nacp:
 # (Makefile_pc does it via $(shell mkdir ...) at parse time).
 $(shell mkdir -p $(BUILD)/obj/sound/songs $(BUILD)/obj/sound/songs/midi)
 
+ROOT := .
 MID2AGB := $(ROOT)/tools/mid2agb/mid2agb
 
 # Generate any missing song .s files from .mid (only mus_rg_encounter_gym_leader
