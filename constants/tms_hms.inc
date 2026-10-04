@@ -1,6 +1,7 @@
 #ifndef GUARD_CONSTANTS_TMS_HMS_INC
 #define GUARD_CONSTANTS_TMS_HMS_INC
 
+#include "constants/items.h"
 #include "constants/tms_hms.h"
 
 /* Expands to:

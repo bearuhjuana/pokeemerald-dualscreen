@@ -61,7 +61,8 @@ set(PREPARE_DATA "${CMAKE_CURRENT_LIST_DIR}/prepare_data.py")
 # Includes affect data layout as well as source contents. Track them so a
 # pointer macro or generated map include change also rebuilds data objects.
 file(GLOB_RECURSE DATA_INCLUDES CONFIGURE_DEPENDS
-    "${ROOT}/asm/*.inc" "${ROOT}/data/*.inc" "${ROOT}/include/*.h")
+    "${ROOT}/asm/*.inc" "${ROOT}/constants/*.inc"
+    "${ROOT}/data/*.inc" "${ROOT}/include/*.h")
 set(SPECIAL_IDS "${CMAKE_BINARY_DIR}/generated/special_ids.inc")
 add_custom_command(
     OUTPUT "${SPECIAL_IDS}"

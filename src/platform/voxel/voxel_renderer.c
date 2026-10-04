@@ -744,14 +744,17 @@ void VoxelRenderer_RenderFrame(void)
     // Start menu cursor is sometimes OBJ, but if we enable OBJ we see the player sprite, so we hide OBJs for now.
     REG_DISPCNT &= ~(0x0200 | 0x0400 | 0x0800 | 0x1000); 
 
-    static uint16_t gbaImage[240 * 160];
-    static uint32_t uiImage[240 * 160];
-    memset(gbaImage, 0, sizeof(gbaImage));
+    // DrawFrame packs every row at the active render width, including the
+    // extra overworld columns when widescreen is enabled.
+    static uint16_t gbaImage[MAX_RENDER_WIDTH * DISPLAY_HEIGHT];
+    static uint32_t uiImage[MAX_RENDER_WIDTH * DISPLAY_HEIGHT];
+    int pixelCount = gRenderWidth * DISPLAY_HEIGHT;
+    memset(gbaImage, 0, pixelCount * sizeof(gbaImage[0]));
     DrawFrame(gbaImage);
     REG_DISPCNT = oldDispCnt;
 
     uint16_t backdrop = *(uint16_t *)PLTT;
-    for (int i = 0; i < 240 * 160; i++) {
+    for (int i = 0; i < pixelCount; i++) {
         uint16_t color = gbaImage[i];
         if (color == backdrop || color == 0) { // 0 is also often transparent
             uiImage[i] = 0; // transparent
@@ -776,7 +779,7 @@ void VoxelRenderer_RenderFrame(void)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, sUiTex);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 240, 160, 0, GL_RGBA, GL_UNSIGNED_BYTE, uiImage);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gRenderWidth, DISPLAY_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, uiImage);
 
     // Setup 2D ortho projection for UI
     glMatrixMode(GL_PROJECTION);
