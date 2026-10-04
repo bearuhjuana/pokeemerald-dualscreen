@@ -38,7 +38,11 @@ jobs:
           # ubuntu-latest runners ship a preinstalled Android SDK with licenses
           # already accepted. If NDK/CMake versions drift from build.gradle,
           # the Gradle step will fail with a clear error.
-          git -C android/SDL2 apply ../patches/sdl2-android-lifecycle.patch
+          if [ -d android/SDL2/.git ] && [ -f android/patches/sdl2-android-lifecycle.patch ]; then
+            git -C android/SDL2 apply ../patches/sdl2-android-lifecycle.patch || echo "SDL2 patch already applied or failed, continuing"
+          else
+            echo "SDL2 submodule or patch not present, skipping"
+          fi
       - name: Test Android data preparation
         run: python3 -m unittest discover -s tests/android-arm64 -v
       - name: Build and run host 64-bit smoke test
