@@ -755,8 +755,9 @@
 
 	/* Starts a single trainer battle. Takes a trainer, intro text, loss text, and an optional event script.*/
 	/* When used with an event script, you can also pass in an optional flag to disable music*/
+	/* Compare the optional script sentinel as text so labels remain relocatable. */
 	.macro trainerbattle_single trainer:req, intro_text:req, lose_text:req, event_script=FALSE, music=TRUE
-	.if \event_script == FALSE
+	.ifc \event_script, FALSE
 	trainerbattle TRAINER_BATTLE_SINGLE, \trainer, LOCALID_NONE, \intro_text, \lose_text
 	.elseif \music == TRUE
 	trainerbattle TRAINER_BATTLE_CONTINUE_SCRIPT, \trainer, LOCALID_NONE, \intro_text, \lose_text, \event_script
@@ -768,7 +769,7 @@
 	/* Starts a double trainer battle. Takes a trainer, intro text, loss text, text for when you have too few pokemon*/
 	/* and an optional event script. When used with an event script you can pass in an optional flag to disable music*/
 	.macro trainerbattle_double trainer:req, intro_text:req, lose_text:req, not_enough_pkmn_text:req, event_script=FALSE, music=TRUE
-	.if \event_script == FALSE
+	.ifc \event_script, FALSE
 	trainerbattle TRAINER_BATTLE_DOUBLE, \trainer, LOCALID_NONE, \intro_text, \lose_text, \not_enough_pkmn_text
 	.elseif \music == TRUE
 	trainerbattle TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE, \trainer, LOCALID_NONE, \intro_text, \lose_text, \not_enough_pkmn_text, \event_script
@@ -1042,14 +1043,18 @@
 	/* Note: Because the STR_VAR_# arguments given to this macro are not part of a processed string they are not*/
 	/*       replaced with their charmap values, they are just passed as the literal characters "STR_VAR_#".*/
 	.macro stringvar id:req
-	.if \id == STR_VAR_1
+	.ifc \id, STR_VAR_1
 		.byte 0
-	.elseif \id == STR_VAR_2
+	.else
+	.ifc \id, STR_VAR_2
 		.byte 1
-	.elseif \id == STR_VAR_3
+	.else
+	.ifc \id, STR_VAR_3
 		.byte 2
 	.else
 		.byte \id
+	.endif
+	.endif
 	.endif
 	.endm
 
