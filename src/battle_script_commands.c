@@ -1098,7 +1098,7 @@ static bool8 AccuracyCalcHelper(u16 move)
 
 static void Cmd_accuracycheck(void)
 {
-    u16 move = T2_READ_16(gBattlescriptCurrInstr + 5);
+    u16 move = T2_READ_16(gBattlescriptCurrInstr + BS_OFF(5, 1));
 
     if (move == NO_ACC_CALC || move == NO_ACC_CALC_CHECK_LOCK_ON)
     {
@@ -3658,8 +3658,8 @@ static void Cmd_jumpifbyte(void)
 {
     u8 caseID = gBattlescriptCurrInstr[1];
     const u8 *memByte = BS_READ_PTR(gBattlescriptCurrInstr + 2);
-    u8 value = gBattlescriptCurrInstr[6];
-    const u8 *jumpPtr = BS_READ_PTR(gBattlescriptCurrInstr + 7);
+    u8 value = gBattlescriptCurrInstr[BS_OFF(6, 1)];
+    const u8 *jumpPtr = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(7, 1));
 
     gBattlescriptCurrInstr += 11 + BS_PTR_ADJ(2);
 
@@ -3696,8 +3696,8 @@ static void Cmd_jumpifhalfword(void)
 {
     u8 caseID = gBattlescriptCurrInstr[1];
     const u16 *memHword = BS_READ_PTR(gBattlescriptCurrInstr + 2);
-    u16 value = T2_READ_16(gBattlescriptCurrInstr + 6);
-    const u8 *jumpPtr = BS_READ_PTR(gBattlescriptCurrInstr + 8);
+    u16 value = T2_READ_16(gBattlescriptCurrInstr + BS_OFF(6, 1));
+    const u8 *jumpPtr = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(8, 1));
 
     gBattlescriptCurrInstr += 12 + BS_PTR_ADJ(2);
 
@@ -3734,8 +3734,8 @@ static void Cmd_jumpifword(void)
 {
     u8 caseID = gBattlescriptCurrInstr[1];
     const u32 *memWord = BS_READ_PTR(gBattlescriptCurrInstr + 2);
-    u32 value = T1_READ_32(gBattlescriptCurrInstr + 6);
-    const u8 *jumpPtr = BS_READ_PTR(gBattlescriptCurrInstr + 10);
+    u32 value = T1_READ_32(gBattlescriptCurrInstr + BS_OFF(6, 1));
+    const u8 *jumpPtr = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(10, 1));
 
     gBattlescriptCurrInstr += 14 + BS_PTR_ADJ(2);
 
@@ -3771,9 +3771,9 @@ static void Cmd_jumpifword(void)
 static void Cmd_jumpifarrayequal(void)
 {
     const u8 *mem1 = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    const u8 *mem2 = BS_READ_PTR(gBattlescriptCurrInstr + 5);
-    u32 size = gBattlescriptCurrInstr[9];
-    const u8 *jumpPtr = BS_READ_PTR(gBattlescriptCurrInstr + 10);
+    const u8 *mem2 = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(5, 1));
+    u32 size = gBattlescriptCurrInstr[BS_OFF(9, 2)];
+    const u8 *jumpPtr = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(10, 2));
 
     u8 i;
     for (i = 0; i < size; i++)
@@ -3794,9 +3794,9 @@ static void Cmd_jumpifarraynotequal(void)
 {
     u8 equalBytes = 0;
     const u8 *mem1 = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    const u8 *mem2 = BS_READ_PTR(gBattlescriptCurrInstr + 5);
-    u32 size = gBattlescriptCurrInstr[9];
-    const u8 *jumpPtr = BS_READ_PTR(gBattlescriptCurrInstr + 10);
+    const u8 *mem2 = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(5, 1));
+    u32 size = gBattlescriptCurrInstr[BS_OFF(9, 2)];
+    const u8 *jumpPtr = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(10, 2));
 
     u8 i;
     for (i = 0; i < size; i++)
@@ -3815,7 +3815,7 @@ static void Cmd_jumpifarraynotequal(void)
 static void Cmd_setbyte(void)
 {
     u8 *memByte = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    *memByte = gBattlescriptCurrInstr[5];
+    *memByte = gBattlescriptCurrInstr[BS_OFF(5, 1)];
 
     gBattlescriptCurrInstr += 6 + BS_PTR_ADJ(1);
 }
@@ -3823,22 +3823,22 @@ static void Cmd_setbyte(void)
 static void Cmd_addbyte(void)
 {
     u8 *memByte = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    *memByte += gBattlescriptCurrInstr[5];
+    *memByte += gBattlescriptCurrInstr[BS_OFF(5, 1)];
     gBattlescriptCurrInstr += 6 + BS_PTR_ADJ(1);
 }
 
 static void Cmd_subbyte(void)
 {
     u8 *memByte = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    *memByte -= gBattlescriptCurrInstr[5];
+    *memByte -= gBattlescriptCurrInstr[BS_OFF(5, 1)];
     gBattlescriptCurrInstr += 6 + BS_PTR_ADJ(1);
 }
 
 static void Cmd_copyarray(void)
 {
     u8 *dest = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    const u8 *src = BS_READ_PTR(gBattlescriptCurrInstr + 5);
-    s32 size = gBattlescriptCurrInstr[9];
+    const u8 *src = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(5, 1));
+    s32 size = gBattlescriptCurrInstr[BS_OFF(9, 2)];
 
     s32 i;
     for (i = 0; i < size; i++)
@@ -3850,9 +3850,9 @@ static void Cmd_copyarray(void)
 static void Cmd_copyarraywithindex(void)
 {
     u8 *dest = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    const u8 *src = BS_READ_PTR(gBattlescriptCurrInstr + 5);
-    const u8 *index = BS_READ_PTR(gBattlescriptCurrInstr + 9);
-    s32 size = gBattlescriptCurrInstr[13];
+    const u8 *src = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(5, 1));
+    const u8 *index = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(9, 2));
+    s32 size = gBattlescriptCurrInstr[BS_OFF(13, 3)];
 
     s32 i;
     for (i = 0; i < size; i++)
@@ -3864,14 +3864,14 @@ static void Cmd_copyarraywithindex(void)
 static void Cmd_orbyte(void)
 {
     u8 *memByte = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    *memByte |= gBattlescriptCurrInstr[5];
+    *memByte |= gBattlescriptCurrInstr[BS_OFF(5, 1)];
     gBattlescriptCurrInstr += 6 + BS_PTR_ADJ(1);
 }
 
 static void Cmd_orhalfword(void)
 {
     u16 *memHword = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    u16 val = T2_READ_16(gBattlescriptCurrInstr + 5);
+    u16 val = T2_READ_16(gBattlescriptCurrInstr + BS_OFF(5, 1));
 
     *memHword |= val;
     gBattlescriptCurrInstr += 7 + BS_PTR_ADJ(1);
@@ -3880,7 +3880,7 @@ static void Cmd_orhalfword(void)
 static void Cmd_orword(void)
 {
     u32 *memWord = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    u32 val = T2_READ_32(gBattlescriptCurrInstr + 5);
+    u32 val = T2_READ_32(gBattlescriptCurrInstr + BS_OFF(5, 1));
 
     *memWord |= val;
     gBattlescriptCurrInstr += 9 + BS_PTR_ADJ(1);
@@ -3889,14 +3889,14 @@ static void Cmd_orword(void)
 static void Cmd_bicbyte(void)
 {
     u8 *memByte = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    *memByte &= ~(gBattlescriptCurrInstr[5]);
+    *memByte &= ~(gBattlescriptCurrInstr[BS_OFF(5, 1)]);
     gBattlescriptCurrInstr += 6 + BS_PTR_ADJ(1);
 }
 
 static void Cmd_bichalfword(void)
 {
     u16 *memHword = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    u16 val = T2_READ_16(gBattlescriptCurrInstr + 5);
+    u16 val = T2_READ_16(gBattlescriptCurrInstr + BS_OFF(5, 1));
 
     *memHword &= ~val;
     gBattlescriptCurrInstr += 7 + BS_PTR_ADJ(1);
@@ -3905,7 +3905,7 @@ static void Cmd_bichalfword(void)
 static void Cmd_bicword(void)
 {
     u32 *memWord = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    u32 val = T2_READ_32(gBattlescriptCurrInstr + 5);
+    u32 val = T2_READ_32(gBattlescriptCurrInstr + BS_OFF(5, 1));
 
     *memWord &= ~val;
     gBattlescriptCurrInstr += 9 + BS_PTR_ADJ(1);
@@ -4055,7 +4055,7 @@ static void Cmd_playanimation_var(void)
 
     gActiveBattler = GetBattlerForBattleScript(gBattlescriptCurrInstr[1]);
     animationIdPtr = BS_READ_PTR(gBattlescriptCurrInstr + 2);
-    argumentPtr = BS_READ_PTR(gBattlescriptCurrInstr + 6);
+    argumentPtr = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(6, 1));
 #ifdef PORTABLE
     if (animationIdPtr != NULL && (
        *animationIdPtr == B_ANIM_STATS_CHANGE
@@ -5375,9 +5375,9 @@ static void Cmd_returntoball(void)
 static void Cmd_handlelearnnewmove(void)
 {
     const u8 *learnedMovePtr = BS_READ_PTR(gBattlescriptCurrInstr + 1);
-    const u8 *nothingToLearnPtr = BS_READ_PTR(gBattlescriptCurrInstr + 5);
+    const u8 *nothingToLearnPtr = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(5, 1));
 
-    u16 learnMove = MonTryLearningNewMove(&gPlayerParty[gBattleStruct->expGetterMonId], gBattlescriptCurrInstr[9]);
+    u16 learnMove = MonTryLearningNewMove(&gPlayerParty[gBattleStruct->expGetterMonId], gBattlescriptCurrInstr[BS_OFF(9, 2)]);
     while (learnMove == MON_ALREADY_KNOWS_MOVE)
         learnMove = MonTryLearningNewMove(&gPlayerParty[gBattleStruct->expGetterMonId], FALSE);
 
@@ -6636,7 +6636,7 @@ static void Cmd_tryhealhalfhealth(void)
 {
     const u8 *failPtr = BS_READ_PTR(gBattlescriptCurrInstr + 1);
 
-    if (gBattlescriptCurrInstr[5] == BS_ATTACKER)
+    if (gBattlescriptCurrInstr[BS_OFF(5, 1)] == BS_ATTACKER)
         gBattlerTarget = gBattlerAttacker;
 
     gBattleMoveDamage = gBattleMons[gBattlerTarget].maxHP / 2;
@@ -9021,7 +9021,7 @@ static void Cmd_trydobeatup(void)
         }
         else
         {
-            gBattlescriptCurrInstr = BS_READ_PTR(gBattlescriptCurrInstr + 5);
+            gBattlescriptCurrInstr = BS_READ_PTR(gBattlescriptCurrInstr + BS_OFF(5, 1));
         }
     }
 }

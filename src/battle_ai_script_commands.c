@@ -953,7 +953,7 @@ static void Cmd_if_less_than_ptr(void)
     const u8 *value = BS_READ_PTR(gAIScriptPtr + 1);
 
     if (AI_THINKING_STRUCT->funcResult < *value)
-        gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + 5);
+        gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + BS_OFF(5, 1));
     else
         gAIScriptPtr += 9 + BS_PTR_ADJ(2);
 }
@@ -963,7 +963,7 @@ static void Cmd_if_more_than_ptr(void)
     const u8 *value = BS_READ_PTR(gAIScriptPtr + 1);
 
     if (AI_THINKING_STRUCT->funcResult > *value)
-        gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + 5);
+        gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + BS_OFF(5, 1));
     else
         gAIScriptPtr += 9 + BS_PTR_ADJ(2);
 }
@@ -973,7 +973,7 @@ static void Cmd_if_equal_ptr(void)
     const u8 *value = BS_READ_PTR(gAIScriptPtr + 1);
 
     if (AI_THINKING_STRUCT->funcResult == *value)
-        gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + 5);
+        gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + BS_OFF(5, 1));
     else
         gAIScriptPtr += 9 + BS_PTR_ADJ(2);
 }
@@ -983,7 +983,7 @@ static void Cmd_if_not_equal_ptr(void)
     const u8 *value = BS_READ_PTR(gAIScriptPtr + 1);
 
     if (AI_THINKING_STRUCT->funcResult != *value)
-        gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + 5);
+        gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + BS_OFF(5, 1));
     else
         gAIScriptPtr += 9 + BS_PTR_ADJ(2);
 }
@@ -1016,7 +1016,7 @@ static void Cmd_if_in_bytes(void)
     {
         if (AI_THINKING_STRUCT->funcResult == *ptr)
         {
-            gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + 5);
+            gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + BS_OFF(5, 1));
             return;
         }
         ptr++;
@@ -1037,7 +1037,7 @@ static void Cmd_if_not_in_bytes(void)
         }
         ptr++;
     }
-    gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + 5);
+    gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + BS_OFF(5, 1));
 }
 
 static void Cmd_if_in_hwords(void)
@@ -1048,7 +1048,7 @@ static void Cmd_if_in_hwords(void)
     {
         if (AI_THINKING_STRUCT->funcResult == *ptr)
         {
-            gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + 5);
+            gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + BS_OFF(5, 1));
             return;
         }
         ptr++;
@@ -1069,7 +1069,7 @@ static void Cmd_if_not_in_hwords(void)
         }
         ptr++;
     }
-    gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + 5);
+    gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + BS_OFF(5, 1));
 }
 
 static void Cmd_if_user_has_attacking_move(void)

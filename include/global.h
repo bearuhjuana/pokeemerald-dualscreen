@@ -145,9 +145,13 @@ int strcmp(const char *, const char*);
     ((u64)(ptr)[0])        | ((u64)(ptr)[1] << 8)  | ((u64)(ptr)[2] << 16) | ((u64)(ptr)[3] << 24) | \
     ((u64)(ptr)[4] << 32)  | ((u64)(ptr)[5] << 40) | ((u64)(ptr)[6] << 48) | ((u64)(ptr)[7] << 56)))
 #define BS_PTR_ADJ(n) ((n) * 4) // extra bytes per pointer operand on 64-bit
+// Adjusts a 32-bit bytecode offset for 64-bit: each pointer before this
+// operand grew by 4 bytes. E.g. BS_OFF(7, 1) = 11.
+#define BS_OFF(base, ptrs_before) ((base) + 4*(ptrs_before))
 #else
 #define BS_READ_PTR(ptr) ((void *)(uintptr_t)T2_READ_32(ptr))
 #define BS_PTR_ADJ(n) (0)
+#define BS_OFF(base, ptrs_before) (base)
 #endif
 
 #define PACK(data, shift, mask)   ( ((data) << (shift)) & (mask) )

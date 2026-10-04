@@ -141,7 +141,7 @@ void VBlankIntrWait(void)
     if (++sFrame == 300)
     {
         // Battle-script 64-bit pointer validation.
-        // Tests that 8-byte pointers in battle scripts are read correctly.
+        // Test 1: goto (0x28) with single 8-byte pointer.
         // Script: goto (0x28) -> end (0x3D). Layout: [0x28][8-byte ptr][0x3D]
         static u8 testScript[16];
         u8 *endCmd = &testScript[9];
@@ -156,9 +156,38 @@ void VBlankIntrWait(void)
         gBattleScriptingCommandsTable[0x28](); // goto
         
         if (gBattlescriptCurrInstr == endCmd)
-            printf("[Harness] PASS: Battle script 8-byte pointers work on 64-bit\n");
+            printf("[Harness] PASS: goto 8-byte pointer works\n");
         else
-            printf("[Harness] FAIL: 64-bit battle script pointer mismatch\n");
+            printf("[Harness] FAIL: goto pointer mismatch\n");
+        fflush(stdout);
+        
+        // Test 2: jumpifbyte (0x29) with pointer-then-scalar-then-pointer.
+        // Layout 64-bit: [0x29][ifflag:1][val_ptr:8][byte:1][jump_ptr:8] = 19 bytes
+        // This validates BS_OFF interior offset fixes.
+        static u8 testScript2[32];
+        static u8 memByte = 42;
+        u8 *end2 = &testScript2[19];
+        testScript2[0] = 0x29; // jumpifbyte
+        testScript2[1] = 0;    // CMP_EQUAL
+        // val_ptr at +2 (8 bytes)
+        ptrVal = (uintptr_t)&memByte;
+        for (int i = 0; i < 8; i++)
+            testScript2[2 + i] = (ptrVal >> (i * 8)) & 0xFF;
+        testScript2[10] = 42;  // byte value at BS_OFF(6,1)=10
+        // jump_ptr at +11 (8 bytes)
+        ptrVal = (uintptr_t)end2;
+        for (int i = 0; i < 8; i++)
+            testScript2[11 + i] = (ptrVal >> (i * 8)) & 0xFF;
+        testScript2[19] = 0x3D; // end
+        
+        gBattlescriptCurrInstr = testScript2;
+        gBattleScriptingCommandsTable[0x29](); // jumpifbyte
+        
+        if (gBattlescriptCurrInstr == end2)
+            printf("[Harness] PASS: jumpifbyte interior offsets work on 64-bit\n");
+        else
+            printf("[Harness] FAIL: jumpifbyte jumped to %p, expected %p\n",
+                   (void*)gBattlescriptCurrInstr, (void*)end2);
         fflush(stdout);
         
         gBattleScriptingCommandsTable[0x3D](); // end
