@@ -215,7 +215,8 @@ struct SoundInfo
     MPlayFunc *MPlayJumpTable;
     PlyNoteFunc plynote;
     ExtVolPitFunc ExtVolPit;
-    u8 gap2[16];
+    // Four reserved pointer slots shared with SoundMixerState.
+    u8 gap2[4 * sizeof(void *)];
     struct SoundChannel chans[MAX_DIRECTSOUND_CHANNELS];
     float pcmBuffer[PCM_DMA_BUF_SIZE * 2];
 };
