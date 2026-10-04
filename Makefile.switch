@@ -65,13 +65,19 @@ ASFLAGS := --defsym MODERN=1 --defsym PORTABLE=1 --defsym UBFIX=1
 FIX_UNDERSCORE := true
 ASM_PSEUDO_OP_CONV := sed -e 's/\.4byte/\.word/g;s/\.2byte/\.short/g'
 
-GFX := tools/gbagfx/gbagfx
-MAPJSON := tools/mapjson/mapjson
-JSONPROC := tools/jsonproc/jsonproc
-AIF := tools/aif2pcm/aif2pcm
-MID := tools/mid2agb/mid2agb
-PREPROC := tools/preproc/preproc
-SCANINC := tools/scaninc/scaninc
+ifeq ($(OS),Windows_NT)
+EXE := .exe
+else
+EXE :=
+endif
+
+GFX := tools/gbagfx/gbagfx$(EXE)
+MAPJSON := tools/mapjson/mapjson$(EXE)
+JSONPROC := tools/jsonproc/jsonproc$(EXE)
+AIF := tools/aif2pcm/aif2pcm$(EXE)
+MID := tools/mid2agb/mid2agb$(EXE)
+PREPROC := tools/preproc/preproc$(EXE)
+SCANINC := tools/scaninc/scaninc$(EXE)
 
 # The incbin scan below needs scaninc at parse time: bootstrap the host
 # tools on a fresh clone so a single `make` does everything.
