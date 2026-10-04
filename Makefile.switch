@@ -49,7 +49,7 @@ INCLUDES := -iquote include -iquote gflib -I$(DEVKITPRO)/libnx/include
 
 CFLAGS  := -O3 -fno-builtin -std=gnu11 $(ARCH) $(INCLUDES) $(DEFINES)
 LDFLAGS := -specs=$(DEVKITPRO)/libnx/switch.specs $(ARCH) \
-           -L$(DEVKITPRO)/libnx/lib -Wl,--no-as-needed -lnx -lm
+           $(DEVKITPRO)/libnx/lib/libnx.a -lm
 
 # ---- vars expected by the pret asset-rule .mk files ----
 DATA_ASM_SUBDIR := data
