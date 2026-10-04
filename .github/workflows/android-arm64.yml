@@ -1,0 +1,67 @@
+name: Android ARM64 and host smoke
+
+on:
+  push:
+    branches: [vara/android-arm64-voxel]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.2.1'
+      - uses: android-actions/setup-android@v3
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential binutils libpng-dev
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;26.3.11579264' 'cmake;3.22.1'
+          git -C android/SDL2 apply ../patches/sdl2-android-lifecycle.patch
+      - name: Test Android data preparation
+        run: python3 -m unittest discover -s tests/android-arm64 -v
+      - name: Build and run host 64-bit smoke test
+        run: |
+          make -f make_tools.mk
+          make -f tests/host-64bit/Makefile.host -j2
+          timeout 120s ./build/host-test/host_test | tee build/host-test/smoke.log
+          grep -F 'SURVIVED 1200 frames on 64-bit' build/host-test/smoke.log
+          grep -F 'PASS: Battle script 8-byte pointers work on 64-bit' build/host-test/smoke.log
+      - name: Build Android ARM64 APK
+        run: gradle -p android --no-daemon :app:assembleDebug
+      - name: Verify packaged architecture
+        run: |
+          python3 - <<'PY'
+          import struct, zipfile
+          with zipfile.ZipFile('android/app/build/outputs/apk/debug/app-debug.apk') as apk:
+              libs = [name for name in apk.namelist() if name.startswith('lib/') and name.endswith('.so')]
+              assert 'lib/arm64-v8a/libmain.so' in libs, libs
+              assert all(name.startswith('lib/arm64-v8a/') for name in libs), libs
+              for name in libs:
+                  elf = apk.read(name)
+                  assert elf[:6] == b'\x7fELF\x02\x01', name
+                  assert struct.unpack_from('<H', elf, 18)[0] == 183, name
+              print('PASS: all packaged native libraries are ELF64 AArch64')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-arm64-verification
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            build/host-test/smoke.log

@@ -30,7 +30,7 @@ android {
         versionName dualScreenVersion
 
         ndk {
-            abiFilters 'armeabi-v7a'
+            abiFilters 'arm64-v8a'
         }
 
         externalNativeBuild {

@@ -183,6 +183,17 @@ u32 ScriptReadWord(struct ScriptContext *ctx)
     return (((((value3 << 8) + value2) << 8) + value1) << 8) + value0;
 }
 
+// Event bytecode is packed, so read pointers bytewise rather than dereferencing
+// an unaligned pointer. Numeric word operands remain four bytes in every build.
+uintptr_t ScriptReadPointer(struct ScriptContext *ctx)
+{
+    uintptr_t value = ScriptReadWord(ctx);
+#ifdef PORTABLE_64BIT
+    value |= (uintptr_t)ScriptReadWord(ctx) << 32;
+#endif
+    return value;
+}
+
 void LockPlayerFieldControls(void)
 {
     sLockFieldControls = TRUE;

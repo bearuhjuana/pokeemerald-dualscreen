@@ -70,8 +70,9 @@ def collect_entries(so_path, rom):
                 continue
             pruned.append((addr, size))
 
-        # ARM32 uses REL relocations with in-place addends: any relocation
-        # target word in .data holds a link-time address the loader rewrites,
+        # Relocated pointers have the ELF target's native width. ARM32 REL
+        # entries also carry in-place addends. Preserve the entire pointer
+        # target in .data, which holds an address the loader rewrites,
         # so it must never be zeroed or filled from ROM. Split candidate
         # ranges around every relocation target.
         reloc_offsets = []
@@ -80,19 +81,20 @@ def collect_entries(so_path, rom):
             if relsec is not None:
                 reloc_offsets.extend(r["r_offset"] for r in relsec.iter_relocations())
         reloc_offsets.sort()
+        pointer_bytes = elf.elfclass // 8
         import bisect
 
         def split_around_relocs(addr, size):
             parts = []
             start = addr
             end = addr + size
-            i = bisect.bisect_left(reloc_offsets, start - 3)
+            i = bisect.bisect_left(reloc_offsets, start - (pointer_bytes - 1))
             while i < len(reloc_offsets) and reloc_offsets[i] < end:
                 r = reloc_offsets[i]
-                if r + 4 > start:
+                if r + pointer_bytes > start:
                     if r > start:
                         parts.append((start, r - start))
-                    start = r + 4
+                    start = r + pointer_bytes
                 i += 1
             if end > start:
                 parts.append((start, end - start))

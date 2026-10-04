@@ -31,12 +31,20 @@
 	.endm
 
 	.macro voice_group label:req, starting_note
+#ifdef PORTABLE_64BIT
+	.balign 8
+#else
 	.align 2
+#endif
 	.ifb \starting_note
 		.global voicegroup_\label 
 		voicegroup_\label:
 	.else
+#ifdef PORTABLE_64BIT
+		.set voicegroup_\label, . - \starting_note * 24
+#else
 		.set voicegroup_\label, . - \starting_note * 0xC
+#endif
 	.endif
 	.endm
 

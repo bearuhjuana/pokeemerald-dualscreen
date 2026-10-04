@@ -242,7 +242,12 @@ struct PokemonCrySong
     u8 part0; // 0x11
     u8 tuneValue; // 0x12
     u8 gotoCmd; // 0x13
+#ifdef PORTABLE_64BIT
+    // Embedded GOTO bytecode has no padding between the opcode and pointer.
+    uintptr_t gotoTarget __attribute__((packed));
+#else
     u32 gotoTarget; // 0x14
+#endif
     u8 part1; // 0x18
     u8 tuneValue2; // 0x19
     u8 cont[2]; // 0x1A

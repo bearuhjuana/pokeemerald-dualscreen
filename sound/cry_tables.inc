@@ -1,4 +1,8 @@
+#ifdef PORTABLE_64BIT
+	.balign 8
+#else
 	.align 2
+#endif
 gCryTable::
 	cry Cry_Bulbasaur
 	cry Cry_Ivysaur
@@ -389,7 +393,11 @@ gCryTable::
 	cry Cry_Deoxys
 	cry Cry_Chimecho
 
+#ifdef PORTABLE_64BIT
+	.balign 8
+#else
 	.align 2
+#endif
 gCryTable_Reverse::
 	cry_reverse Cry_Bulbasaur
 	cry_reverse Cry_Ivysaur

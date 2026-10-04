@@ -73,7 +73,14 @@ static bool sHasBorderBackgroundConfig;
 static u8 sBackgroundOrderVersion;
 // Dual-screen defaults: black background, touch controls hidden, battle
 // menus on the bottom screen, fast-forward leaves the music at normal tempo.
-static u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {0, 4, 0, 1, 1, 10, 1, 0, 0, 0, 0, 0, 0, 0};
+// The experimental Android ARM64 build starts in voxel mode. A saved
+// voxelRenderer=0 still selects classic 2D; other builds keep their defaults.
+#if defined(__ANDROID__) && defined(PORTABLE_64BIT)
+#define DEFAULT_VOXEL_RENDERER 1
+#else
+#define DEFAULT_VOXEL_RENDERER 0
+#endif
+static u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {0, 4, 0, 1, 1, 10, 1, 0, 0, 0, 0, DEFAULT_VOXEL_RENDERER, 0, 0};
 // The fast-forward speed as chosen in the SET tab, which is what belongs in the
 // config file. The R2 hotkey overrides the live setting without touching this,
 // so that StoreConfigFile - which writes every setting whenever any one of them
@@ -245,6 +252,16 @@ int main(int argc, char **argv)
         androidWindowFlags |= SDL_WINDOW_OPENGL;
     }
     sdlWindow = SDL_CreateWindow("pokeemerald", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DISPLAY_WIDTH * videoScale, DISPLAY_HEIGHT * videoScale, androidWindowFlags);
+#ifdef __ANDROID__
+    if (sdlWindow == NULL && gVoxelModeEnabled) {
+        SDL_Log("[Voxel] GLES window creation failed, falling back to classic: %s", SDL_GetError());
+        gVoxelModeEnabled = false;
+        androidWindowFlags &= ~SDL_WINDOW_OPENGL;
+        SDL_GL_ResetAttributes();
+        sdlWindow = SDL_CreateWindow("pokeemerald", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                     DISPLAY_WIDTH * videoScale, DISPLAY_HEIGHT * videoScale, androidWindowFlags);
+    }
+#endif
 #endif
     if (sdlWindow == NULL)
     {
@@ -261,9 +278,26 @@ int main(int argc, char **argv)
             gVoxelModeEnabled = false;
         } else if (!VoxelRenderer_Init()) {
             printf("[Voxel] Renderer init failed, falling back to classic\n");
+            SDL_GL_DeleteContext(glContext);
+            glContext = NULL;
             gVoxelModeEnabled = false;
         }
     }
+#ifdef __ANDROID__
+    if (!gVoxelModeEnabled && (androidWindowFlags & SDL_WINDOW_OPENGL)) {
+        // SDL's classic renderer chooses its own GLES context. Recreate the
+        // window after a voxel context failure so ES 1.1 is not inherited.
+        SDL_DestroyWindow(sdlWindow);
+        SDL_GL_ResetAttributes();
+        sdlWindow = SDL_CreateWindow("pokeemerald", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                     DISPLAY_WIDTH * videoScale, DISPLAY_HEIGHT * videoScale,
+                                     androidWindowFlags & ~SDL_WINDOW_OPENGL);
+        if (sdlWindow == NULL) {
+            DBGPRINTF("Classic window could not be created! SDL_Error: %s\n", SDL_GetError());
+            return 1;
+        }
+    }
+#endif
 #endif
 
 #ifdef VOXEL_CAPABLE
@@ -653,6 +687,8 @@ int main(int argc, char **argv)
     if (gVoxelModeEnabled) {
         VoxelRenderer_Shutdown();
     }
+    if (glContext != NULL)
+        SDL_GL_DeleteContext(glContext);
 #endif
     SDL_DestroyWindow(sdlWindow);
     ModManager_Shutdown();
@@ -840,11 +876,15 @@ static void ReadConfigFile(void)
         else if (sscanf(line, "fastForward=%u", &value) == 1 && value <= 3)
             sPlatformSettings[PLATFORM_SETTING_FAST_FORWARD] = sFastForwardSetting = value;
         else if (sscanf(line, "voxelRenderer=%u", &value) == 1)
+#ifdef __ANDROID__
+            sPlatformSettings[PLATFORM_SETTING_VOXEL_RENDERER] = value != 0;
+#else
             // Consumed but forced off: the voxel renderer is not shipping yet,
             // so the SET tab no longer offers it and a config left over from a
             // build that did must not strand anyone in 3D. StoreConfigFile
             // writes the cleared value back out.
             sPlatformSettings[PLATFORM_SETTING_VOXEL_RENDERER] = 0;
+#endif
         else if (sscanf(line, "fastForwardAudio=%u", &value) == 1)
             sPlatformSettings[PLATFORM_SETTING_FF_AUDIO] = value != 0;
         else if (sscanf(line, "battleHints=%u", &value) == 1)

@@ -762,12 +762,19 @@ bool8 FieldEffectCmd_loadfadedpal_callnative(u8 **script, u32 *val)
     return TRUE;
 }
 
-u32 FieldEffectScript_ReadWord(u8 **script)
+uintptr_t FieldEffectScript_ReadWord(u8 **script)
 {
+#ifdef PORTABLE_64BIT
+    uintptr_t value;
+    // Script operands are unaligned native pointers.
+    memcpy(&value, *script, sizeof(value));
+    return value;
+#else
     return (*script)[0]
          + ((*script)[1] << 8)
          + ((*script)[2] << 16)
          + ((*script)[3] << 24);
+#endif
 }
 
 void FieldEffectScript_LoadTiles(u8 **script)
@@ -775,7 +782,7 @@ void FieldEffectScript_LoadTiles(u8 **script)
     struct SpriteSheet *sheet = (struct SpriteSheet *)FieldEffectScript_ReadWord(script);
     if (GetSpriteTileStartByTag(sheet->tag) == 0xFFFF)
         LoadSpriteSheet(sheet);
-    (*script) += 4;
+    (*script) += sizeof(void *);
 }
 
 void FieldEffectScript_LoadFadedPalette(u8 **script)
@@ -783,21 +790,21 @@ void FieldEffectScript_LoadFadedPalette(u8 **script)
     struct SpritePalette *palette = (struct SpritePalette *)FieldEffectScript_ReadWord(script);
     LoadSpritePalette(palette);
     UpdateSpritePaletteWithWeather(IndexOfSpritePaletteTag(palette->tag));
-    (*script) += 4;
+    (*script) += sizeof(void *);
 }
 
 void FieldEffectScript_LoadPalette(u8 **script)
 {
     struct SpritePalette *palette = (struct SpritePalette *)FieldEffectScript_ReadWord(script);
     LoadSpritePalette(palette);
-    (*script) += 4;
+    (*script) += sizeof(void *);
 }
 
 void FieldEffectScript_CallNative(u8 **script, u32 *val)
 {
     u32 (*func)(void) = (u32 (*)(void))FieldEffectScript_ReadWord(script);
     *val = func();
-    (*script) += 4;
+    (*script) += sizeof(void *);
 }
 
 void FieldEffectFreeGraphicsResources(struct Sprite *sprite)

@@ -6,7 +6,7 @@ layouts). This is how the 64-bit fixes were developed and verified.
 
 ## Prerequisites
 
-- GCC (x86_64), GNU as/ld, standard build tools
+- GCC (x86_64), GNU as/ld, Python 3, libpng development headers, standard build tools
 - Build the repo tools first: `make -f make_tools.mk` (from repo root)
 
 ## Run
@@ -34,6 +34,11 @@ and the software PPU.
 
 ## Notes
 
-- Linked `-no-pie` so 4-byte battle-script bytecode relocations stay valid
-  below 4GB. Battle scripts still use 4-byte pointers (see repo notes).
+- Battle script operands and native pointer tables use eight-byte pointers.
+  The harness still links `-no-pie`; run the focused tests below as well to
+  exercise relocated pointers above 4 GiB and preserved legacy operand widths:
+
+  ```sh
+  python3 -m unittest discover -s tests/android-arm64 -v
+  ```
 - The harness is not part of any shipping build; it's a dev tool.

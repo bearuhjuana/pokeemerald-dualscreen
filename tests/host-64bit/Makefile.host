@@ -36,7 +36,7 @@ MID_BUILDDIR := $(BUILD)/obj/sound/songs/midi
 DATA_SRC_SUBDIR := src/data
 C_SUBDIR := src
 C_BUILDDIR := $(BUILD)/obj/src
-ASFLAGS := --defsym MODERN=1 --defsym PORTABLE=1 --defsym UBFIX=1
+ASFLAGS := --defsym MODERN=1 --defsym PORTABLE=1 --defsym UBFIX=1 --defsym PORTABLE_64BIT=1
 FIX_UNDERSCORE := true
 ASM_PSEUDO_OP_CONV := sed -e 's/\.4byte/\.int/g;s/\.2byte/\.short/g'
 
@@ -95,13 +95,6 @@ DATA_OBJS := $(REGULAR_DATA_OBJS) $(BUILD)/obj/data/maps.o $(BUILD)/obj/data/map
 SONG_OBJS := $(patsubst sound/songs/%.s,$(BUILD)/obj/sound/songs/%.o,$(wildcard sound/songs/*.s)) \
              $(patsubst sound/songs/midi/%.s,$(BUILD)/obj/sound/songs/midi/%.o,$(MIDI_S))
 
-# Midi song .s files contain 4-byte track/voicegroup pointers from mid2agb.
-# For 64-bit, convert to 8-byte pointers via the build directory.
-$(BUILD)/obj/sound/songs/midi/%.o: sound/songs/midi/%.s
-	@mkdir -p $(dir $@) $(BUILD)/midi64
-	sed 's/\.4byte/.8byte/g' $< > $(BUILD)/midi64/$*.s
-	$(AS) $(ASFLAGS) -Iinclude -o $@ $(BUILD)/midi64/$*.s
-
 $(BUILD)/obj/data/%.o: data/%.s $(PREPROC) $(SPECIAL_IDS)
 	@mkdir -p $(dir $@) $(BUILD)/data
 	{ printf '.include "$(SPECIAL_IDS)"\n'; $(PREPROC) $< charmap.txt | $(CPP) -I include -DMODERN=1 -DPORTABLE -DUBFIX - | $(PREPROC) -ie $< charmap.txt; } > $(BUILD)/data/$*.s
@@ -124,6 +117,22 @@ include map_data_rules.mk
 include spritesheet_rules.mk
 include json_data_rules.mk
 include audio_rules.mk
+
+# Share Android's song conversion: pointer widths and SongHeader padding
+# must both match LP64, including checked-in non-MIDI songs.
+PREPARE_SONG := android/app/src/main/cpp/prepare_data.py
+HOST_MIDI_OBJS := $(filter $(BUILD)/obj/sound/songs/midi/%.o,$(SONG_OBJS))
+HOST_SONG_OBJS := $(filter-out $(HOST_MIDI_OBJS),$(SONG_OBJS))
+$(HOST_MIDI_OBJS): $(BUILD)/obj/sound/songs/midi/%.o: sound/songs/midi/%.s $(PREPARE_SONG)
+	@mkdir -p $(dir $@) $(BUILD)/midi64
+	python3 $(PREPARE_SONG) --song-only --portable-64bit --source $< --output $(BUILD)/midi64/$*.s
+	$(AS) $(ASFLAGS) -Isound -Iinclude -o $@ $(BUILD)/midi64/$*.s
+
+$(HOST_SONG_OBJS): $(BUILD)/obj/sound/songs/%.o: sound/songs/%.s $(PREPARE_SONG)
+	@mkdir -p $(dir $@) $(BUILD)/song64
+	python3 $(PREPARE_SONG) --song-only --portable-64bit --source $< --output $(BUILD)/song64/$*.s
+	$(AS) $(ASFLAGS) -Isound -Iinclude -o $@ $(BUILD)/song64/$*.s
+
 
 # Generic graphics conversions (from Makefile_pc).
 %.1bpp: %.png  ; $(GFX) $< $@

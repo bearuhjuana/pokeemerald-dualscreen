@@ -1591,12 +1591,21 @@ void ply_xxx(struct MusicPlayerInfo *mplayInfo, struct MusicPlayerTrack *track)
 {                                    \
     u32 byte = track->cmdPtr[(n)]; \
     byte <<= n * 8;                  \
-    (var) &= ~(0xFF << (n * 8));     \
+    (var) &= ~(0xFFu << (n * 8));    \
     (var) |= byte;                   \
 }
 
 void ply_xwave(struct MusicPlayerInfo *mplayInfo, struct MusicPlayerTrack *track)
 {
+#ifdef PORTABLE_64BIT
+    uintptr_t wav = 0;
+    u32 i;
+
+    for (i = 0; i < sizeof(wav); i++)
+        wav |= (uintptr_t)track->cmdPtr[i] << (i * 8);
+    track->tone.wav = (struct WaveData *)wav;
+    track->cmdPtr += sizeof(wav);
+#else
     u32 wav;
 
 #ifdef UBFIX
@@ -1610,6 +1619,7 @@ void ply_xwave(struct MusicPlayerInfo *mplayInfo, struct MusicPlayerTrack *track
 
     track->tone.wav = (struct WaveData *)wav;
     track->cmdPtr += 4;
+#endif
 }
 
 void ply_xtype(struct MusicPlayerInfo *mplayInfo, struct MusicPlayerTrack *track)
@@ -1743,7 +1753,11 @@ start_song:
     gPokemonCrySongs[i].tone = tone;
     gPokemonCrySongs[i].part[0] = &gPokemonCrySongs[i].part0;
     gPokemonCrySongs[i].part[1] = &gPokemonCrySongs[i].part1;
+#ifdef PORTABLE_64BIT
+    gPokemonCrySongs[i].gotoTarget = (uintptr_t)&gPokemonCrySongs[i].cont;
+#else
     gPokemonCrySongs[i].gotoTarget = (u32)&gPokemonCrySongs[i].cont;
+#endif
 
     mplayInfo->ident = ID_NUMBER;
 

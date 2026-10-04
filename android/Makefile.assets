@@ -1,0 +1,51 @@
+# Run from the repository root. Generates assets without compiling GBA objects.
+.DEFAULT_GOAL := all
+PORTABLE_64BIT ?= 1
+export MID2AGB_64BIT := $(PORTABLE_64BIT)
+
+DATA_ASM_SUBDIR := data
+DATA_ASM_BUILDDIR := build/android-assets/data
+SONG_SUBDIR := sound/songs
+SONG_BUILDDIR := build/android-assets/sound/songs
+MID_SUBDIR := sound/songs/midi
+MID_BUILDDIR := build/android-assets/sound/songs/midi
+DATA_SRC_SUBDIR := src/data
+C_SUBDIR := src
+C_BUILDDIR := build/android-assets/src
+
+GFX := tools/gbagfx/gbagfx
+MAPJSON := tools/mapjson/mapjson
+JSONPROC := tools/jsonproc/jsonproc
+AIF := tools/aif2pcm/aif2pcm
+MID := tools/mid2agb/mid2agb
+SCANINC := tools/scaninc/scaninc
+PREPROC := tools/preproc/preproc
+
+# CMake builds the native host tools first, before this dependency scan.
+INC_DEPS := $(shell for f in $(shell find src gflib -name '*.c' | sed '/\.inc\.c$$/d') $(wildcard data/*.s); do $(SCANINC) -I include $$f 2>/dev/null; done | sort -u)
+MIDI_NAMES := $(shell sed -nE 's/^([a-z0-9_]+)(\.mid)?:.*/\1/p' $(MID_SUBDIR)/midi.cfg)
+MIDI_S := $(addprefix $(MID_SUBDIR)/,$(addsuffix .s,$(MIDI_NAMES)))
+MIDI_EXTRA_S := $(filter-out $(MIDI_S),$(patsubst %.mid,%.s,$(wildcard $(MID_SUBDIR)/*.mid)))
+
+include graphics_file_rules.mk
+include map_data_rules.mk
+include spritesheet_rules.mk
+include json_data_rules.mk
+include audio_rules.mk
+
+# Regenerate map assembly if mapjson's native pointer layout changes.
+$(MAP_CONNECTIONS) $(MAP_EVENTS) $(MAP_HEADERS) $(MAPS_DIR)/connections.inc $(MAPS_DIR)/groups.inc $(MAPS_DIR)/events.inc $(MAPS_DIR)/headers.inc $(LAYOUTS_DIR)/layouts.inc $(LAYOUTS_DIR)/layouts_table.inc: $(MAPJSON)
+
+$(MIDI_EXTRA_S): %.s: %.mid
+	$(MID) $< $@
+
+%.1bpp: %.png ; $(GFX) $< $@
+%.4bpp: %.png ; $(GFX) $< $@
+%.8bpp: %.png ; $(GFX) $< $@
+%.gbapal: %.pal ; $(GFX) $< $@
+%.gbapal: %.png ; $(GFX) $< $@
+%.lz: % ; $(GFX) $< $@
+%.rl: % ; $(GFX) $< $@
+
+.PHONY: all
+all: $(AUTO_GEN_TARGETS) $(INC_DEPS) $(MIDI_S) $(MIDI_EXTRA_S)

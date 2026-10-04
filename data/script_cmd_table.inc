@@ -2,7 +2,11 @@
 	.set SCRIPT_CMD_TABLE_ENTRY_MACRO, 1
 	.macro script_cmd_table_entry constant:req value:req
 	.if ALLOCATE_SCRIPT_CMD_TABLE
+#ifdef PORTABLE_64BIT
+	.8byte \value
+#else
 	.4byte \value
+#endif
 	.else
 	enum \constant
 	.endif
@@ -12,7 +16,11 @@
 
 	enum_start
 	.if ALLOCATE_SCRIPT_CMD_TABLE
+#ifdef PORTABLE_64BIT
+	.balign 8
+#else
 	.align 2
+#endif
 gScriptCmdTable::
 	.endif
 	script_cmd_table_entry SCR_OP_NOP                           ScrCmd_nop                            @ 0x00
@@ -245,5 +253,9 @@ gScriptCmdTable::
 
 	.if ALLOCATE_SCRIPT_CMD_TABLE
 gScriptCmdTableEnd::
+#ifdef PORTABLE_64BIT
+	.8byte ScrCmd_nop
+#else
 	.int ScrCmd_nop
+#endif
 	.endif

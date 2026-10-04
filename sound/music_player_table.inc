@@ -9,7 +9,11 @@
 
 	.section .rodata
 
+#ifdef PORTABLE_64BIT
+	.balign 8
+#else
 	.align 2
+#endif
 gMPlayTable::
 	music_player gMPlayInfo_BGM, gMPlayTrack_BGM, NUM_TRACKS_BGM, 0
 	music_player gMPlayInfo_SE1, gMPlayTrack_SE1, NUM_TRACKS_SE1, 1

@@ -1,4 +1,8 @@
+#ifdef PORTABLE_64BIT
+	.balign 8
+#else
 	.align 2
+#endif
 
 gSongTable::
 	song mus_dummy, 0, 0

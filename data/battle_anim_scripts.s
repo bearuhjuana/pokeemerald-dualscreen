@@ -15,411 +15,415 @@ gMovesWithQuietBGM::
 	.short MOVE_SING, MOVE_PERISH_SONG, MOVE_GRASS_WHISTLE, 0xFFFF
 
 	.align 2
+	data_ptr_align
 gBattleAnims_Moves::
-	.int Move_NONE
-	.int Move_POUND
-	.int Move_KARATE_CHOP
-	.int Move_DOUBLE_SLAP
-	.int Move_COMET_PUNCH
-	.int Move_MEGA_PUNCH
-	.int Move_PAY_DAY
-	.int Move_FIRE_PUNCH
-	.int Move_ICE_PUNCH
-	.int Move_THUNDER_PUNCH
-	.int Move_SCRATCH
-	.int Move_VICE_GRIP
-	.int Move_GUILLOTINE
-	.int Move_RAZOR_WIND
-	.int Move_SWORDS_DANCE
-	.int Move_CUT
-	.int Move_GUST
-	.int Move_WING_ATTACK
-	.int Move_WHIRLWIND
-	.int Move_FLY
-	.int Move_BIND
-	.int Move_SLAM
-	.int Move_VINE_WHIP
-	.int Move_STOMP
-	.int Move_DOUBLE_KICK
-	.int Move_MEGA_KICK
-	.int Move_JUMP_KICK
-	.int Move_ROLLING_KICK
-	.int Move_SAND_ATTACK
-	.int Move_HEADBUTT
-	.int Move_HORN_ATTACK
-	.int Move_FURY_ATTACK
-	.int Move_HORN_DRILL
-	.int Move_TACKLE
-	.int Move_BODY_SLAM
-	.int Move_WRAP
-	.int Move_TAKE_DOWN
-	.int Move_THRASH
-	.int Move_DOUBLE_EDGE
-	.int Move_TAIL_WHIP
-	.int Move_POISON_STING
-	.int Move_TWINEEDLE
-	.int Move_PIN_MISSILE
-	.int Move_LEER
-	.int Move_BITE
-	.int Move_GROWL
-	.int Move_ROAR
-	.int Move_SING
-	.int Move_SUPERSONIC
-	.int Move_SONIC_BOOM
-	.int Move_DISABLE
-	.int Move_ACID
-	.int Move_EMBER
-	.int Move_FLAMETHROWER
-	.int Move_MIST
-	.int Move_WATER_GUN
-	.int Move_HYDRO_PUMP
-	.int Move_SURF
-	.int Move_ICE_BEAM
-	.int Move_BLIZZARD
-	.int Move_PSYBEAM
-	.int Move_BUBBLE_BEAM
-	.int Move_AURORA_BEAM
-	.int Move_HYPER_BEAM
-	.int Move_PECK
-	.int Move_DRILL_PECK
-	.int Move_SUBMISSION
-	.int Move_LOW_KICK
-	.int Move_COUNTER
-	.int Move_SEISMIC_TOSS
-	.int Move_STRENGTH
-	.int Move_ABSORB
-	.int Move_MEGA_DRAIN
-	.int Move_LEECH_SEED
-	.int Move_GROWTH
-	.int Move_RAZOR_LEAF
-	.int Move_SOLAR_BEAM
-	.int Move_POISON_POWDER
-	.int Move_STUN_SPORE
-	.int Move_SLEEP_POWDER
-	.int Move_PETAL_DANCE
-	.int Move_STRING_SHOT
-	.int Move_DRAGON_RAGE
-	.int Move_FIRE_SPIN
-	.int Move_THUNDER_SHOCK
-	.int Move_THUNDERBOLT
-	.int Move_THUNDER_WAVE
-	.int Move_THUNDER
-	.int Move_ROCK_THROW
-	.int Move_EARTHQUAKE
-	.int Move_FISSURE
-	.int Move_DIG
-	.int Move_TOXIC
-	.int Move_CONFUSION
-	.int Move_PSYCHIC
-	.int Move_HYPNOSIS
-	.int Move_MEDITATE
-	.int Move_AGILITY
-	.int Move_QUICK_ATTACK
-	.int Move_RAGE
-	.int Move_TELEPORT
-	.int Move_NIGHT_SHADE
-	.int Move_MIMIC
-	.int Move_SCREECH
-	.int Move_DOUBLE_TEAM
-	.int Move_RECOVER
-	.int Move_HARDEN
-	.int Move_MINIMIZE
-	.int Move_SMOKESCREEN
-	.int Move_CONFUSE_RAY
-	.int Move_WITHDRAW
-	.int Move_DEFENSE_CURL
-	.int Move_BARRIER
-	.int Move_LIGHT_SCREEN
-	.int Move_HAZE
-	.int Move_REFLECT
-	.int Move_FOCUS_ENERGY
-	.int Move_BIDE
-	.int Move_METRONOME
-	.int Move_MIRROR_MOVE /* doesnt have an actual animation*/
-	.int Move_SELF_DESTRUCT
-	.int Move_EGG_BOMB
-	.int Move_LICK
-	.int Move_SMOG
-	.int Move_SLUDGE
-	.int Move_BONE_CLUB
-	.int Move_FIRE_BLAST
-	.int Move_WATERFALL
-	.int Move_CLAMP
-	.int Move_SWIFT
-	.int Move_SKULL_BASH
-	.int Move_SPIKE_CANNON
-	.int Move_CONSTRICT
-	.int Move_AMNESIA
-	.int Move_KINESIS
-	.int Move_SOFT_BOILED
-	.int Move_HI_JUMP_KICK
-	.int Move_GLARE
-	.int Move_DREAM_EATER
-	.int Move_POISON_GAS
-	.int Move_BARRAGE
-	.int Move_LEECH_LIFE
-	.int Move_LOVELY_KISS
-	.int Move_SKY_ATTACK
-	.int Move_TRANSFORM
-	.int Move_BUBBLE
-	.int Move_DIZZY_PUNCH
-	.int Move_SPORE
-	.int Move_FLASH
-	.int Move_PSYWAVE
-	.int Move_SPLASH
-	.int Move_ACID_ARMOR
-	.int Move_CRABHAMMER
-	.int Move_EXPLOSION
-	.int Move_FURY_SWIPES
-	.int Move_BONEMERANG
-	.int Move_REST
-	.int Move_ROCK_SLIDE
-	.int Move_HYPER_FANG
-	.int Move_SHARPEN
-	.int Move_CONVERSION
-	.int Move_TRI_ATTACK
-	.int Move_SUPER_FANG
-	.int Move_SLASH
-	.int Move_SUBSTITUTE
-	.int Move_STRUGGLE
-	.int Move_SKETCH
-	.int Move_TRIPLE_KICK
-	.int Move_THIEF
-	.int Move_SPIDER_WEB
-	.int Move_MIND_READER
-	.int Move_NIGHTMARE
-	.int Move_FLAME_WHEEL
-	.int Move_SNORE
-	.int Move_CURSE
-	.int Move_FLAIL
-	.int Move_CONVERSION_2
-	.int Move_AEROBLAST
-	.int Move_COTTON_SPORE
-	.int Move_REVERSAL
-	.int Move_SPITE
-	.int Move_POWDER_SNOW
-	.int Move_PROTECT
-	.int Move_MACH_PUNCH
-	.int Move_SCARY_FACE
-	.int Move_FAINT_ATTACK
-	.int Move_SWEET_KISS
-	.int Move_BELLY_DRUM
-	.int Move_SLUDGE_BOMB
-	.int Move_MUD_SLAP
-	.int Move_OCTAZOOKA
-	.int Move_SPIKES
-	.int Move_ZAP_CANNON
-	.int Move_FORESIGHT
-	.int Move_DESTINY_BOND
-	.int Move_PERISH_SONG
-	.int Move_ICY_WIND
-	.int Move_DETECT
-	.int Move_BONE_RUSH
-	.int Move_LOCK_ON
-	.int Move_OUTRAGE
-	.int Move_SANDSTORM
-	.int Move_GIGA_DRAIN
-	.int Move_ENDURE
-	.int Move_CHARM
-	.int Move_ROLLOUT
-	.int Move_FALSE_SWIPE
-	.int Move_SWAGGER
-	.int Move_MILK_DRINK
-	.int Move_SPARK
-	.int Move_FURY_CUTTER
-	.int Move_STEEL_WING
-	.int Move_MEAN_LOOK
-	.int Move_ATTRACT
-	.int Move_SLEEP_TALK
-	.int Move_HEAL_BELL
-	.int Move_RETURN
-	.int Move_PRESENT
-	.int Move_FRUSTRATION
-	.int Move_SAFEGUARD
-	.int Move_PAIN_SPLIT
-	.int Move_SACRED_FIRE
-	.int Move_MAGNITUDE
-	.int Move_DYNAMIC_PUNCH
-	.int Move_MEGAHORN
-	.int Move_DRAGON_BREATH
-	.int Move_BATON_PASS
-	.int Move_ENCORE
-	.int Move_PURSUIT
-	.int Move_RAPID_SPIN
-	.int Move_SWEET_SCENT
-	.int Move_IRON_TAIL
-	.int Move_METAL_CLAW
-	.int Move_VITAL_THROW
-	.int Move_MORNING_SUN
-	.int Move_SYNTHESIS
-	.int Move_MOONLIGHT
-	.int Move_HIDDEN_POWER
-	.int Move_CROSS_CHOP
-	.int Move_TWISTER
-	.int Move_RAIN_DANCE
-	.int Move_SUNNY_DAY
-	.int Move_CRUNCH
-	.int Move_MIRROR_COAT
-	.int Move_PSYCH_UP
-	.int Move_EXTREME_SPEED
-	.int Move_ANCIENT_POWER
-	.int Move_SHADOW_BALL
-	.int Move_FUTURE_SIGHT
-	.int Move_ROCK_SMASH
-	.int Move_WHIRLPOOL
-	.int Move_BEAT_UP
-	.int Move_FAKE_OUT
-	.int Move_UPROAR
-	.int Move_STOCKPILE
-	.int Move_SPIT_UP
-	.int Move_SWALLOW
-	.int Move_HEAT_WAVE
-	.int Move_HAIL
-	.int Move_TORMENT
-	.int Move_FLATTER
-	.int Move_WILL_O_WISP
-	.int Move_MEMENTO
-	.int Move_FACADE
-	.int Move_FOCUS_PUNCH
-	.int Move_SMELLING_SALT
-	.int Move_FOLLOW_ME
-	.int Move_NATURE_POWER
-	.int Move_CHARGE
-	.int Move_TAUNT
-	.int Move_HELPING_HAND
-	.int Move_TRICK
-	.int Move_ROLE_PLAY
-	.int Move_WISH
-	.int Move_ASSIST
-	.int Move_INGRAIN
-	.int Move_SUPERPOWER
-	.int Move_MAGIC_COAT
-	.int Move_RECYCLE
-	.int Move_REVENGE
-	.int Move_BRICK_BREAK
-	.int Move_YAWN
-	.int Move_KNOCK_OFF
-	.int Move_ENDEAVOR
-	.int Move_ERUPTION
-	.int Move_SKILL_SWAP
-	.int Move_IMPRISON
-	.int Move_REFRESH
-	.int Move_GRUDGE
-	.int Move_SNATCH
-	.int Move_SECRET_POWER
-	.int Move_DIVE
-	.int Move_ARM_THRUST
-	.int Move_CAMOUFLAGE
-	.int Move_TAIL_GLOW
-	.int Move_LUSTER_PURGE
-	.int Move_MIST_BALL
-	.int Move_FEATHER_DANCE
-	.int Move_TEETER_DANCE
-	.int Move_BLAZE_KICK
-	.int Move_MUD_SPORT
-	.int Move_ICE_BALL
-	.int Move_NEEDLE_ARM
-	.int Move_SLACK_OFF
-	.int Move_HYPER_VOICE
-	.int Move_POISON_FANG
-	.int Move_CRUSH_CLAW
-	.int Move_BLAST_BURN
-	.int Move_HYDRO_CANNON
-	.int Move_METEOR_MASH
-	.int Move_ASTONISH
-	.int Move_WEATHER_BALL
-	.int Move_AROMATHERAPY
-	.int Move_FAKE_TEARS
-	.int Move_AIR_CUTTER
-	.int Move_OVERHEAT
-	.int Move_ODOR_SLEUTH
-	.int Move_ROCK_TOMB
-	.int Move_SILVER_WIND
-	.int Move_METAL_SOUND
-	.int Move_GRASS_WHISTLE
-	.int Move_TICKLE
-	.int Move_COSMIC_POWER
-	.int Move_WATER_SPOUT
-	.int Move_SIGNAL_BEAM
-	.int Move_SHADOW_PUNCH
-	.int Move_EXTRASENSORY
-	.int Move_SKY_UPPERCUT
-	.int Move_SAND_TOMB
-	.int Move_SHEER_COLD
-	.int Move_MUDDY_WATER
-	.int Move_BULLET_SEED
-	.int Move_AERIAL_ACE
-	.int Move_ICICLE_SPEAR
-	.int Move_IRON_DEFENSE
-	.int Move_BLOCK
-	.int Move_HOWL
-	.int Move_DRAGON_CLAW
-	.int Move_FRENZY_PLANT
-	.int Move_BULK_UP
-	.int Move_BOUNCE
-	.int Move_MUD_SHOT
-	.int Move_POISON_TAIL
-	.int Move_COVET
-	.int Move_VOLT_TACKLE
-	.int Move_MAGICAL_LEAF
-	.int Move_WATER_SPORT
-	.int Move_CALM_MIND
-	.int Move_LEAF_BLADE
-	.int Move_DRAGON_DANCE
-	.int Move_ROCK_BLAST
-	.int Move_SHOCK_WAVE
-	.int Move_WATER_PULSE
-	.int Move_DOOM_DESIRE
-	.int Move_PSYCHO_BOOST
-	.int Move_COUNT /* cannot be reached, because last move is Psycho Boost*/
+	data_ptr Move_NONE
+	data_ptr Move_POUND
+	data_ptr Move_KARATE_CHOP
+	data_ptr Move_DOUBLE_SLAP
+	data_ptr Move_COMET_PUNCH
+	data_ptr Move_MEGA_PUNCH
+	data_ptr Move_PAY_DAY
+	data_ptr Move_FIRE_PUNCH
+	data_ptr Move_ICE_PUNCH
+	data_ptr Move_THUNDER_PUNCH
+	data_ptr Move_SCRATCH
+	data_ptr Move_VICE_GRIP
+	data_ptr Move_GUILLOTINE
+	data_ptr Move_RAZOR_WIND
+	data_ptr Move_SWORDS_DANCE
+	data_ptr Move_CUT
+	data_ptr Move_GUST
+	data_ptr Move_WING_ATTACK
+	data_ptr Move_WHIRLWIND
+	data_ptr Move_FLY
+	data_ptr Move_BIND
+	data_ptr Move_SLAM
+	data_ptr Move_VINE_WHIP
+	data_ptr Move_STOMP
+	data_ptr Move_DOUBLE_KICK
+	data_ptr Move_MEGA_KICK
+	data_ptr Move_JUMP_KICK
+	data_ptr Move_ROLLING_KICK
+	data_ptr Move_SAND_ATTACK
+	data_ptr Move_HEADBUTT
+	data_ptr Move_HORN_ATTACK
+	data_ptr Move_FURY_ATTACK
+	data_ptr Move_HORN_DRILL
+	data_ptr Move_TACKLE
+	data_ptr Move_BODY_SLAM
+	data_ptr Move_WRAP
+	data_ptr Move_TAKE_DOWN
+	data_ptr Move_THRASH
+	data_ptr Move_DOUBLE_EDGE
+	data_ptr Move_TAIL_WHIP
+	data_ptr Move_POISON_STING
+	data_ptr Move_TWINEEDLE
+	data_ptr Move_PIN_MISSILE
+	data_ptr Move_LEER
+	data_ptr Move_BITE
+	data_ptr Move_GROWL
+	data_ptr Move_ROAR
+	data_ptr Move_SING
+	data_ptr Move_SUPERSONIC
+	data_ptr Move_SONIC_BOOM
+	data_ptr Move_DISABLE
+	data_ptr Move_ACID
+	data_ptr Move_EMBER
+	data_ptr Move_FLAMETHROWER
+	data_ptr Move_MIST
+	data_ptr Move_WATER_GUN
+	data_ptr Move_HYDRO_PUMP
+	data_ptr Move_SURF
+	data_ptr Move_ICE_BEAM
+	data_ptr Move_BLIZZARD
+	data_ptr Move_PSYBEAM
+	data_ptr Move_BUBBLE_BEAM
+	data_ptr Move_AURORA_BEAM
+	data_ptr Move_HYPER_BEAM
+	data_ptr Move_PECK
+	data_ptr Move_DRILL_PECK
+	data_ptr Move_SUBMISSION
+	data_ptr Move_LOW_KICK
+	data_ptr Move_COUNTER
+	data_ptr Move_SEISMIC_TOSS
+	data_ptr Move_STRENGTH
+	data_ptr Move_ABSORB
+	data_ptr Move_MEGA_DRAIN
+	data_ptr Move_LEECH_SEED
+	data_ptr Move_GROWTH
+	data_ptr Move_RAZOR_LEAF
+	data_ptr Move_SOLAR_BEAM
+	data_ptr Move_POISON_POWDER
+	data_ptr Move_STUN_SPORE
+	data_ptr Move_SLEEP_POWDER
+	data_ptr Move_PETAL_DANCE
+	data_ptr Move_STRING_SHOT
+	data_ptr Move_DRAGON_RAGE
+	data_ptr Move_FIRE_SPIN
+	data_ptr Move_THUNDER_SHOCK
+	data_ptr Move_THUNDERBOLT
+	data_ptr Move_THUNDER_WAVE
+	data_ptr Move_THUNDER
+	data_ptr Move_ROCK_THROW
+	data_ptr Move_EARTHQUAKE
+	data_ptr Move_FISSURE
+	data_ptr Move_DIG
+	data_ptr Move_TOXIC
+	data_ptr Move_CONFUSION
+	data_ptr Move_PSYCHIC
+	data_ptr Move_HYPNOSIS
+	data_ptr Move_MEDITATE
+	data_ptr Move_AGILITY
+	data_ptr Move_QUICK_ATTACK
+	data_ptr Move_RAGE
+	data_ptr Move_TELEPORT
+	data_ptr Move_NIGHT_SHADE
+	data_ptr Move_MIMIC
+	data_ptr Move_SCREECH
+	data_ptr Move_DOUBLE_TEAM
+	data_ptr Move_RECOVER
+	data_ptr Move_HARDEN
+	data_ptr Move_MINIMIZE
+	data_ptr Move_SMOKESCREEN
+	data_ptr Move_CONFUSE_RAY
+	data_ptr Move_WITHDRAW
+	data_ptr Move_DEFENSE_CURL
+	data_ptr Move_BARRIER
+	data_ptr Move_LIGHT_SCREEN
+	data_ptr Move_HAZE
+	data_ptr Move_REFLECT
+	data_ptr Move_FOCUS_ENERGY
+	data_ptr Move_BIDE
+	data_ptr Move_METRONOME
+	data_ptr Move_MIRROR_MOVE /* doesnt have an actual animation*/
+	data_ptr Move_SELF_DESTRUCT
+	data_ptr Move_EGG_BOMB
+	data_ptr Move_LICK
+	data_ptr Move_SMOG
+	data_ptr Move_SLUDGE
+	data_ptr Move_BONE_CLUB
+	data_ptr Move_FIRE_BLAST
+	data_ptr Move_WATERFALL
+	data_ptr Move_CLAMP
+	data_ptr Move_SWIFT
+	data_ptr Move_SKULL_BASH
+	data_ptr Move_SPIKE_CANNON
+	data_ptr Move_CONSTRICT
+	data_ptr Move_AMNESIA
+	data_ptr Move_KINESIS
+	data_ptr Move_SOFT_BOILED
+	data_ptr Move_HI_JUMP_KICK
+	data_ptr Move_GLARE
+	data_ptr Move_DREAM_EATER
+	data_ptr Move_POISON_GAS
+	data_ptr Move_BARRAGE
+	data_ptr Move_LEECH_LIFE
+	data_ptr Move_LOVELY_KISS
+	data_ptr Move_SKY_ATTACK
+	data_ptr Move_TRANSFORM
+	data_ptr Move_BUBBLE
+	data_ptr Move_DIZZY_PUNCH
+	data_ptr Move_SPORE
+	data_ptr Move_FLASH
+	data_ptr Move_PSYWAVE
+	data_ptr Move_SPLASH
+	data_ptr Move_ACID_ARMOR
+	data_ptr Move_CRABHAMMER
+	data_ptr Move_EXPLOSION
+	data_ptr Move_FURY_SWIPES
+	data_ptr Move_BONEMERANG
+	data_ptr Move_REST
+	data_ptr Move_ROCK_SLIDE
+	data_ptr Move_HYPER_FANG
+	data_ptr Move_SHARPEN
+	data_ptr Move_CONVERSION
+	data_ptr Move_TRI_ATTACK
+	data_ptr Move_SUPER_FANG
+	data_ptr Move_SLASH
+	data_ptr Move_SUBSTITUTE
+	data_ptr Move_STRUGGLE
+	data_ptr Move_SKETCH
+	data_ptr Move_TRIPLE_KICK
+	data_ptr Move_THIEF
+	data_ptr Move_SPIDER_WEB
+	data_ptr Move_MIND_READER
+	data_ptr Move_NIGHTMARE
+	data_ptr Move_FLAME_WHEEL
+	data_ptr Move_SNORE
+	data_ptr Move_CURSE
+	data_ptr Move_FLAIL
+	data_ptr Move_CONVERSION_2
+	data_ptr Move_AEROBLAST
+	data_ptr Move_COTTON_SPORE
+	data_ptr Move_REVERSAL
+	data_ptr Move_SPITE
+	data_ptr Move_POWDER_SNOW
+	data_ptr Move_PROTECT
+	data_ptr Move_MACH_PUNCH
+	data_ptr Move_SCARY_FACE
+	data_ptr Move_FAINT_ATTACK
+	data_ptr Move_SWEET_KISS
+	data_ptr Move_BELLY_DRUM
+	data_ptr Move_SLUDGE_BOMB
+	data_ptr Move_MUD_SLAP
+	data_ptr Move_OCTAZOOKA
+	data_ptr Move_SPIKES
+	data_ptr Move_ZAP_CANNON
+	data_ptr Move_FORESIGHT
+	data_ptr Move_DESTINY_BOND
+	data_ptr Move_PERISH_SONG
+	data_ptr Move_ICY_WIND
+	data_ptr Move_DETECT
+	data_ptr Move_BONE_RUSH
+	data_ptr Move_LOCK_ON
+	data_ptr Move_OUTRAGE
+	data_ptr Move_SANDSTORM
+	data_ptr Move_GIGA_DRAIN
+	data_ptr Move_ENDURE
+	data_ptr Move_CHARM
+	data_ptr Move_ROLLOUT
+	data_ptr Move_FALSE_SWIPE
+	data_ptr Move_SWAGGER
+	data_ptr Move_MILK_DRINK
+	data_ptr Move_SPARK
+	data_ptr Move_FURY_CUTTER
+	data_ptr Move_STEEL_WING
+	data_ptr Move_MEAN_LOOK
+	data_ptr Move_ATTRACT
+	data_ptr Move_SLEEP_TALK
+	data_ptr Move_HEAL_BELL
+	data_ptr Move_RETURN
+	data_ptr Move_PRESENT
+	data_ptr Move_FRUSTRATION
+	data_ptr Move_SAFEGUARD
+	data_ptr Move_PAIN_SPLIT
+	data_ptr Move_SACRED_FIRE
+	data_ptr Move_MAGNITUDE
+	data_ptr Move_DYNAMIC_PUNCH
+	data_ptr Move_MEGAHORN
+	data_ptr Move_DRAGON_BREATH
+	data_ptr Move_BATON_PASS
+	data_ptr Move_ENCORE
+	data_ptr Move_PURSUIT
+	data_ptr Move_RAPID_SPIN
+	data_ptr Move_SWEET_SCENT
+	data_ptr Move_IRON_TAIL
+	data_ptr Move_METAL_CLAW
+	data_ptr Move_VITAL_THROW
+	data_ptr Move_MORNING_SUN
+	data_ptr Move_SYNTHESIS
+	data_ptr Move_MOONLIGHT
+	data_ptr Move_HIDDEN_POWER
+	data_ptr Move_CROSS_CHOP
+	data_ptr Move_TWISTER
+	data_ptr Move_RAIN_DANCE
+	data_ptr Move_SUNNY_DAY
+	data_ptr Move_CRUNCH
+	data_ptr Move_MIRROR_COAT
+	data_ptr Move_PSYCH_UP
+	data_ptr Move_EXTREME_SPEED
+	data_ptr Move_ANCIENT_POWER
+	data_ptr Move_SHADOW_BALL
+	data_ptr Move_FUTURE_SIGHT
+	data_ptr Move_ROCK_SMASH
+	data_ptr Move_WHIRLPOOL
+	data_ptr Move_BEAT_UP
+	data_ptr Move_FAKE_OUT
+	data_ptr Move_UPROAR
+	data_ptr Move_STOCKPILE
+	data_ptr Move_SPIT_UP
+	data_ptr Move_SWALLOW
+	data_ptr Move_HEAT_WAVE
+	data_ptr Move_HAIL
+	data_ptr Move_TORMENT
+	data_ptr Move_FLATTER
+	data_ptr Move_WILL_O_WISP
+	data_ptr Move_MEMENTO
+	data_ptr Move_FACADE
+	data_ptr Move_FOCUS_PUNCH
+	data_ptr Move_SMELLING_SALT
+	data_ptr Move_FOLLOW_ME
+	data_ptr Move_NATURE_POWER
+	data_ptr Move_CHARGE
+	data_ptr Move_TAUNT
+	data_ptr Move_HELPING_HAND
+	data_ptr Move_TRICK
+	data_ptr Move_ROLE_PLAY
+	data_ptr Move_WISH
+	data_ptr Move_ASSIST
+	data_ptr Move_INGRAIN
+	data_ptr Move_SUPERPOWER
+	data_ptr Move_MAGIC_COAT
+	data_ptr Move_RECYCLE
+	data_ptr Move_REVENGE
+	data_ptr Move_BRICK_BREAK
+	data_ptr Move_YAWN
+	data_ptr Move_KNOCK_OFF
+	data_ptr Move_ENDEAVOR
+	data_ptr Move_ERUPTION
+	data_ptr Move_SKILL_SWAP
+	data_ptr Move_IMPRISON
+	data_ptr Move_REFRESH
+	data_ptr Move_GRUDGE
+	data_ptr Move_SNATCH
+	data_ptr Move_SECRET_POWER
+	data_ptr Move_DIVE
+	data_ptr Move_ARM_THRUST
+	data_ptr Move_CAMOUFLAGE
+	data_ptr Move_TAIL_GLOW
+	data_ptr Move_LUSTER_PURGE
+	data_ptr Move_MIST_BALL
+	data_ptr Move_FEATHER_DANCE
+	data_ptr Move_TEETER_DANCE
+	data_ptr Move_BLAZE_KICK
+	data_ptr Move_MUD_SPORT
+	data_ptr Move_ICE_BALL
+	data_ptr Move_NEEDLE_ARM
+	data_ptr Move_SLACK_OFF
+	data_ptr Move_HYPER_VOICE
+	data_ptr Move_POISON_FANG
+	data_ptr Move_CRUSH_CLAW
+	data_ptr Move_BLAST_BURN
+	data_ptr Move_HYDRO_CANNON
+	data_ptr Move_METEOR_MASH
+	data_ptr Move_ASTONISH
+	data_ptr Move_WEATHER_BALL
+	data_ptr Move_AROMATHERAPY
+	data_ptr Move_FAKE_TEARS
+	data_ptr Move_AIR_CUTTER
+	data_ptr Move_OVERHEAT
+	data_ptr Move_ODOR_SLEUTH
+	data_ptr Move_ROCK_TOMB
+	data_ptr Move_SILVER_WIND
+	data_ptr Move_METAL_SOUND
+	data_ptr Move_GRASS_WHISTLE
+	data_ptr Move_TICKLE
+	data_ptr Move_COSMIC_POWER
+	data_ptr Move_WATER_SPOUT
+	data_ptr Move_SIGNAL_BEAM
+	data_ptr Move_SHADOW_PUNCH
+	data_ptr Move_EXTRASENSORY
+	data_ptr Move_SKY_UPPERCUT
+	data_ptr Move_SAND_TOMB
+	data_ptr Move_SHEER_COLD
+	data_ptr Move_MUDDY_WATER
+	data_ptr Move_BULLET_SEED
+	data_ptr Move_AERIAL_ACE
+	data_ptr Move_ICICLE_SPEAR
+	data_ptr Move_IRON_DEFENSE
+	data_ptr Move_BLOCK
+	data_ptr Move_HOWL
+	data_ptr Move_DRAGON_CLAW
+	data_ptr Move_FRENZY_PLANT
+	data_ptr Move_BULK_UP
+	data_ptr Move_BOUNCE
+	data_ptr Move_MUD_SHOT
+	data_ptr Move_POISON_TAIL
+	data_ptr Move_COVET
+	data_ptr Move_VOLT_TACKLE
+	data_ptr Move_MAGICAL_LEAF
+	data_ptr Move_WATER_SPORT
+	data_ptr Move_CALM_MIND
+	data_ptr Move_LEAF_BLADE
+	data_ptr Move_DRAGON_DANCE
+	data_ptr Move_ROCK_BLAST
+	data_ptr Move_SHOCK_WAVE
+	data_ptr Move_WATER_PULSE
+	data_ptr Move_DOOM_DESIRE
+	data_ptr Move_PSYCHO_BOOST
+	data_ptr Move_COUNT /* cannot be reached, because last move is Psycho Boost*/
 
 	.align 2
+	data_ptr_align
 gBattleAnims_StatusConditions::
-	.int Status_Poison                    /* B_ANIM_STATUS_PSN*/
-	.int Status_Confusion                 /* B_ANIM_STATUS_CONFUSION*/
-	.int Status_Burn                      /* B_ANIM_STATUS_BRN*/
-	.int Status_Infatuation               /* B_ANIM_STATUS_INFATUATION*/
-	.int Status_Sleep                     /* B_ANIM_STATUS_SLP*/
-	.int Status_Paralysis                 /* B_ANIM_STATUS_PRZ*/
-	.int Status_Freeze                    /* B_ANIM_STATUS_FRZ*/
-	.int Status_Curse                     /* B_ANIM_STATUS_CURSED*/
-	.int Status_Nightmare                 /* B_ANIM_STATUS_NIGHTMARE*/
+	data_ptr Status_Poison                    /* B_ANIM_STATUS_PSN*/
+	data_ptr Status_Confusion                 /* B_ANIM_STATUS_CONFUSION*/
+	data_ptr Status_Burn                      /* B_ANIM_STATUS_BRN*/
+	data_ptr Status_Infatuation               /* B_ANIM_STATUS_INFATUATION*/
+	data_ptr Status_Sleep                     /* B_ANIM_STATUS_SLP*/
+	data_ptr Status_Paralysis                 /* B_ANIM_STATUS_PRZ*/
+	data_ptr Status_Freeze                    /* B_ANIM_STATUS_FRZ*/
+	data_ptr Status_Curse                     /* B_ANIM_STATUS_CURSED*/
+	data_ptr Status_Nightmare                 /* B_ANIM_STATUS_NIGHTMARE*/
 
 	.align 2
+	data_ptr_align
 gBattleAnims_General::
-	.int General_CastformChange           /* B_ANIM_CASTFORM_CHANGE*/
-	.int General_StatsChange              /* B_ANIM_STATS_CHANGE*/
-	.int General_SubstituteFade           /* B_ANIM_SUBSTITUTE_FADE*/
-	.int General_SubstituteAppear         /* B_ANIM_SUBSTITUTE_APPEAR*/
-	.int General_PokeblockThrow           /* B_ANIM_POKEBLOCK_THROW*/
-	.int General_ItemKnockoff             /* B_ANIM_ITEM_KNOCKOFF*/
-	.int General_TurnTrap                 /* B_ANIM_TURN_TRAP*/
-	.int General_HeldItemEffect           /* B_ANIM_HELD_ITEM_EFFECT*/
-	.int General_SmokeballEscape          /* B_ANIM_SMOKEBALL_ESCAPE*/
-	.int General_FocusBand                /* B_ANIM_FOCUS_BAND*/
-	.int General_Rain                     /* B_ANIM_RAIN_CONTINUES*/
-	.int General_Sun                      /* B_ANIM_SUN_CONTINUES*/
-	.int General_Sandstorm                /* B_ANIM_SANDSTORM_CONTINUES*/
-	.int General_Hail                     /* B_ANIM_HAIL_CONTINUES*/
-	.int General_LeechSeedDrain           /* B_ANIM_LEECH_SEED_DRAIN*/
-	.int General_MonHit                   /* B_ANIM_MON_HIT*/
-	.int General_ItemSteal                /* B_ANIM_ITEM_STEAL*/
-	.int General_SnatchMove               /* B_ANIM_SNATCH_MOVE*/
-	.int General_FutureSightHit           /* B_ANIM_FUTURE_SIGHT_HIT*/
-	.int General_DoomDesireHit            /* B_ANIM_DOOM_DESIRE_HIT*/
-	.int General_FocusPunchSetUp          /* B_ANIM_FOCUS_PUNCH_SETUP*/
-	.int General_IngrainHeal              /* B_ANIM_INGRAIN_HEAL*/
-	.int General_WishHeal                 /* B_ANIM_WISH_HEAL*/
+	data_ptr General_CastformChange           /* B_ANIM_CASTFORM_CHANGE*/
+	data_ptr General_StatsChange              /* B_ANIM_STATS_CHANGE*/
+	data_ptr General_SubstituteFade           /* B_ANIM_SUBSTITUTE_FADE*/
+	data_ptr General_SubstituteAppear         /* B_ANIM_SUBSTITUTE_APPEAR*/
+	data_ptr General_PokeblockThrow           /* B_ANIM_POKEBLOCK_THROW*/
+	data_ptr General_ItemKnockoff             /* B_ANIM_ITEM_KNOCKOFF*/
+	data_ptr General_TurnTrap                 /* B_ANIM_TURN_TRAP*/
+	data_ptr General_HeldItemEffect           /* B_ANIM_HELD_ITEM_EFFECT*/
+	data_ptr General_SmokeballEscape          /* B_ANIM_SMOKEBALL_ESCAPE*/
+	data_ptr General_FocusBand                /* B_ANIM_FOCUS_BAND*/
+	data_ptr General_Rain                     /* B_ANIM_RAIN_CONTINUES*/
+	data_ptr General_Sun                      /* B_ANIM_SUN_CONTINUES*/
+	data_ptr General_Sandstorm                /* B_ANIM_SANDSTORM_CONTINUES*/
+	data_ptr General_Hail                     /* B_ANIM_HAIL_CONTINUES*/
+	data_ptr General_LeechSeedDrain           /* B_ANIM_LEECH_SEED_DRAIN*/
+	data_ptr General_MonHit                   /* B_ANIM_MON_HIT*/
+	data_ptr General_ItemSteal                /* B_ANIM_ITEM_STEAL*/
+	data_ptr General_SnatchMove               /* B_ANIM_SNATCH_MOVE*/
+	data_ptr General_FutureSightHit           /* B_ANIM_FUTURE_SIGHT_HIT*/
+	data_ptr General_DoomDesireHit            /* B_ANIM_DOOM_DESIRE_HIT*/
+	data_ptr General_FocusPunchSetUp          /* B_ANIM_FOCUS_PUNCH_SETUP*/
+	data_ptr General_IngrainHeal              /* B_ANIM_INGRAIN_HEAL*/
+	data_ptr General_WishHeal                 /* B_ANIM_WISH_HEAL*/
 
 	.align 2
+	data_ptr_align
 gBattleAnims_Special::
-	.int Special_LevelUp                  /* B_ANIM_LVL_UP*/
-	.int Special_SwitchOutPlayerMon       /* B_ANIM_SWITCH_OUT_PLAYER_MON*/
-	.int Special_SwitchOutOpponentMon     /* B_ANIM_SWITCH_OUT_OPPONENT_MON*/
-	.int Special_BallThrow                /* B_ANIM_BALL_THROW*/
-	.int Special_BallThrowWithTrainer     /* B_ANIM_BALL_THROW_WITH_TRAINER*/
-	.int Special_SubstituteToMon          /* B_ANIM_SUBSTITUTE_TO_MON*/
-	.int Special_MonToSubstitute          /* B_ANIM_MON_TO_SUBSTITUTE*/
+	data_ptr Special_LevelUp                  /* B_ANIM_LVL_UP*/
+	data_ptr Special_SwitchOutPlayerMon       /* B_ANIM_SWITCH_OUT_PLAYER_MON*/
+	data_ptr Special_SwitchOutOpponentMon     /* B_ANIM_SWITCH_OUT_OPPONENT_MON*/
+	data_ptr Special_BallThrow                /* B_ANIM_BALL_THROW*/
+	data_ptr Special_BallThrowWithTrainer     /* B_ANIM_BALL_THROW_WITH_TRAINER*/
+	data_ptr Special_SubstituteToMon          /* B_ANIM_SUBSTITUTE_TO_MON*/
+	data_ptr Special_MonToSubstitute          /* B_ANIM_MON_TO_SUBSTITUTE*/
 
 Move_NONE:
 Move_MIRROR_MOVE:

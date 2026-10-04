@@ -14,39 +14,40 @@
 	.section script_data, "aw"
 
 	.align 2
+	data_ptr_align
 gBattleAI_ScriptsTable::
-	.int AI_CheckBadMove          /* AI_SCRIPT_CHECK_BAD_MOVE*/
-	.int AI_TryToFaint            /* AI_SCRIPT_TRY_TO_FAINT*/
-	.int AI_CheckViability        /* AI_SCRIPT_CHECK_VIABILITY*/
-	.int AI_SetupFirstTurn        /* AI_SCRIPT_SETUP_FIRST_TURN*/
-	.int AI_Risky                 /* AI_SCRIPT_RISKY*/
-	.int AI_PreferPowerExtremes   /* AI_SCRIPT_PREFER_POWER_EXTREMES*/
-	.int AI_PreferBatonPass       /* AI_SCRIPT_PREFER_BATON_PASS*/
-	.int AI_DoubleBattle 	        /* AI_SCRIPT_DOUBLE_BATTLE*/
-	.int AI_HPAware               /* AI_SCRIPT_HP_AWARE*/
-	.int AI_TrySunnyDayStart      /* AI_SCRIPT_TRY_SUNNY_DAY_START*/
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Ret
-	.int AI_Roaming               /* AI_SCRIPT_ROAMING*/
-	.int AI_Safari                /* AI_SCRIPT_SAFARI*/
-	.int AI_FirstBattle           /* AI_SCRIPT_FIRST_BATTLE*/
+	data_ptr AI_CheckBadMove          /* AI_SCRIPT_CHECK_BAD_MOVE*/
+	data_ptr AI_TryToFaint            /* AI_SCRIPT_TRY_TO_FAINT*/
+	data_ptr AI_CheckViability        /* AI_SCRIPT_CHECK_VIABILITY*/
+	data_ptr AI_SetupFirstTurn        /* AI_SCRIPT_SETUP_FIRST_TURN*/
+	data_ptr AI_Risky                 /* AI_SCRIPT_RISKY*/
+	data_ptr AI_PreferPowerExtremes   /* AI_SCRIPT_PREFER_POWER_EXTREMES*/
+	data_ptr AI_PreferBatonPass       /* AI_SCRIPT_PREFER_BATON_PASS*/
+	data_ptr AI_DoubleBattle 	        /* AI_SCRIPT_DOUBLE_BATTLE*/
+	data_ptr AI_HPAware               /* AI_SCRIPT_HP_AWARE*/
+	data_ptr AI_TrySunnyDayStart      /* AI_SCRIPT_TRY_SUNNY_DAY_START*/
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Ret
+	data_ptr AI_Roaming               /* AI_SCRIPT_ROAMING*/
+	data_ptr AI_Safari                /* AI_SCRIPT_SAFARI*/
+	data_ptr AI_FirstBattle           /* AI_SCRIPT_FIRST_BATTLE*/
 
 AI_CheckBadMove:
 	if_target_is_ally AI_Ret

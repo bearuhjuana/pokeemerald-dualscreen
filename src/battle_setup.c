@@ -1073,8 +1073,14 @@ static void TrainerBattleLoadArgs(const struct TrainerBattleParameter *specs, co
             data += 2;
             break;
         case TRAINER_PARAM_LOAD_VAL_32BIT:
+#ifdef PORTABLE_64BIT
+            // These parameters are text/event script pointers, not integers.
+            SetPtr(specs->varPtr, BS_READ_PTR(data));
+            data += 8;
+#else
             SetU32(specs->varPtr, TrainerBattleLoadArg32(data));
             data += 4;
+#endif
             break;
         case TRAINER_PARAM_CLEAR_VAL_8BIT:
             SetU8(specs->varPtr, 0);
@@ -1083,7 +1089,11 @@ static void TrainerBattleLoadArgs(const struct TrainerBattleParameter *specs, co
             SetU16(specs->varPtr, 0);
             break;
         case TRAINER_PARAM_CLEAR_VAL_32BIT:
+#ifdef PORTABLE_64BIT
+            SetPtr(specs->varPtr, NULL);
+#else
             SetU32(specs->varPtr, 0);
+#endif
             break;
         case TRAINER_PARAM_LOAD_SCRIPT_RET_ADDR:
             SetPtr(specs->varPtr, data);

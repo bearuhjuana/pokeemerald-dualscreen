@@ -2,11 +2,11 @@
 .global SPECIAL_\ptr
 .set SPECIAL_\ptr, __special__
 .set __special__, __special__ + 1
-	.int \ptr
+	data_ptr \ptr
 	.endm
 
 .set __special__, 0
-		.align 2
+		data_ptr_align
 gSpecials::
 	def_special HealPlayerParty
 	def_special SetCableClubWarp
