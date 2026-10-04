@@ -162,7 +162,7 @@ class EventPointerTests(unittest.TestCase):
             (work / 'check.S').write_text(asm)
             for name, flags in [('64bit', ['-DPORTABLE_64BIT', '-fPIE', '-pie']), ('32bit-operands', ['-fno-pie', '-no-pie'])]:
                 out = work / name
-                cmd = ['gcc', '-std=gnu11', '-O1', '-g', '-fsanitize=undefined', '-Wall', '-Wextra', '-Wno-unused-function', '-I', str(repo / 'include'), *flags, str(work / 'check.c'), str(work / 'check.S'), '-o', str(out)]
+                cmd = ['gcc', '-std=gnu11', '-O1', '-g', '-fsanitize=undefined', '-Wall', '-Wextra', '-Wno-unused-function', '-iquote', str(repo / 'include'), *flags, str(work / 'check.c'), str(work / 'check.S'), '-o', str(out)]
                 with self.subTest(operand_mode=name):
                     self.run_command(cmd)
                     self.run_command([str(out)])

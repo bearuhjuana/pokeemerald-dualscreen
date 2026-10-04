@@ -114,7 +114,7 @@ int main(void)
             subprocess.run([
                 compiler, "-std=gnu11", "-DPORTABLE_64BIT",
                 "-fsanitize=undefined", "-fno-sanitize-recover=undefined",
-                "-I", str(ROOT / "include"), str(source_path), "-o", str(executable),
+                "-iquote", str(ROOT / "include"), str(source_path), "-o", str(executable),
             ], check=True, capture_output=True, text=True)
             result = subprocess.run(
                 [str(executable)], check=True, capture_output=True, text=True,

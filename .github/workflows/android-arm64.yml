@@ -2,7 +2,7 @@ name: Android ARM64 and host smoke
 
 on:
   push:
-    branches: [vara/android-arm64-voxel]
+    branches: [main, vara/android-arm64-voxel]
   workflow_dispatch:
 
 permissions:
