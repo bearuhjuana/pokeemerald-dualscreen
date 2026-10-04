@@ -175,8 +175,9 @@ class DmaPointerReloadTests(unittest.TestCase):
         cls.build = Path(cls.temporary.name)
         (cls.build / "global.h").write_text(GLOBAL_STUB)
         (cls.build / "harness.c").write_text(HARNESS)
+        # Game headers use quotes; keep them out of libc angle-include search.
         cls.common = [COMPILER, "-std=gnu11", "-O1", "-g", "-fPIE", "-pie",
-                      "-I", str(cls.build), "-I", str(ROOT / "include"), "-I", str(ROOT)]
+                      "-iquote", str(cls.build), "-iquote", str(ROOT / "include"), "-iquote", str(ROOT)]
         cls.native = cls.build / "native-dma"
         result = subprocess.run(cls.common + ["-DPORTABLE_64BIT", str(cls.build / "harness.c"),
                                 "-o", str(cls.native)], capture_output=True, text=True)
@@ -204,7 +205,7 @@ class DmaPointerReloadTests(unittest.TestCase):
                          "-m32 syntax check requires an x86 host")
     def test_legacy_32bit_compile(self):
         result = subprocess.run([COMPILER, "-std=gnu11", "-m32", "-fsyntax-only",
-                                 "-I", str(self.build), "-I", str(ROOT / "include"),
+                                 "-iquote", str(self.build), "-iquote", str(ROOT / "include"),
                                  str(ROOT / "src/platform/dma.c")], capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
