@@ -35,15 +35,12 @@ jobs:
           echo "ANDROID_SDK_ROOT=/usr/local/lib/android/sdk" >> $GITHUB_ENV
           echo "/usr/local/lib/android/sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "/usr/local/lib/android/sdk/platform-tools" >> $GITHUB_PATH
-      - name: Install Android SDK packages
+      # Note: ubuntu-latest runners ship a preinstalled Android SDK.
+      # We rely on it directly; if the NDK/CMake versions below drift from
+      # android/app/build.gradle, the Gradle step will fail with a clear error.
+      - name: Accept Android SDK licenses
         run: |
-          SDK=/usr/local/lib/android/sdk
-          export ANDROID_HOME=$SDK
-          export ANDROID_SDK_ROOT=$SDK
-          export PATH=$SDK/cmdline-tools/latest/bin:$PATH
-          # Accept licenses non-interactively; ignore failures (already accepted)
           yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          sdkmanager --install 'platforms;android-36' 'build-tools;36.0.0' 'ndk;26.3.11579264' 'cmake;3.22.1' 2>&1 | tail -5
           git -C android/SDL2 apply ../patches/sdl2-android-lifecycle.patch
       - name: Test Android data preparation
         run: python3 -m unittest discover -s tests/android-arm64 -v
