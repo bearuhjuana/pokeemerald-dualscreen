@@ -35,10 +35,9 @@ jobs:
           echo "ANDROID_SDK_ROOT=/usr/local/lib/android/sdk" >> $GITHUB_ENV
           echo "/usr/local/lib/android/sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "/usr/local/lib/android/sdk/platform-tools" >> $GITHUB_PATH
-      # Note: ubuntu-latest runners ship a preinstalled Android SDK with
-      # licenses already accepted. We rely on it directly; if the NDK/CMake
-      # versions drift from android/app/build.gradle, the Gradle step will
-      # fail with a clear error.
+          # ubuntu-latest runners ship a preinstalled Android SDK with licenses
+          # already accepted. If NDK/CMake versions drift from build.gradle,
+          # the Gradle step will fail with a clear error.
           git -C android/SDL2 apply ../patches/sdl2-android-lifecycle.patch
       - name: Test Android data preparation
         run: python3 -m unittest discover -s tests/android-arm64 -v
