@@ -121,6 +121,22 @@ DATA_OBJS := $(REGULAR_DATA_OBJS) $(BUILD)/obj/data/maps.o $(BUILD)/obj/data/map
 SONG_OBJS := $(patsubst sound/songs/%.s,$(BUILD)/obj/sound/songs/%.o,$(wildcard sound/songs/*.s)) \
              $(patsubst sound/songs/midi/%.s,$(BUILD)/obj/sound/songs/midi/%.o,$(MIDI_S))
 
+# Song 64-bit conversion: run prepare_data.py before assembling, matching
+# the host build. The Switch song pipeline previously bypassed this,
+# emitting 32-bit ABS32 relocations that GNU ld rejects.
+PREPARE_SONG := android/app/src/main/cpp/prepare_data.py
+SWITCH_MIDI_OBJS := $(filter $(BUILD)/obj/sound/songs/midi/%.o,$(SONG_OBJS))
+SWITCH_SONG_OBJS := $(filter-out $(SWITCH_MIDI_OBJS),$(SONG_OBJS))
+$(SWITCH_MIDI_OBJS): $(BUILD)/obj/sound/songs/midi/%.o: sound/songs/midi/%.s $(PREPARE_SONG)
+	@mkdir -p $(dir $@) $(BUILD)/midi64
+	python3 $(PREPARE_SONG) --song-only --portable-64bit --source $< --output $(BUILD)/midi64/$*.s
+	$(AS) $(ASFLAGS) -Isound -Iinclude -o $@ $(BUILD)/midi64/$*.s
+
+$(SWITCH_SONG_OBJS): $(BUILD)/obj/sound/songs/%.o: sound/songs/%.s $(PREPARE_SONG)
+	@mkdir -p $(dir $@) $(BUILD)/song64
+	python3 $(PREPARE_SONG) --song-only --portable-64bit --source $< --output $(BUILD)/song64/$*.s
+	$(AS) $(ASFLAGS) -Isound -Iinclude -o $@ $(BUILD)/song64/$*.s
+
 $(BUILD)/obj/data/%.o: data/%.s $(PREPROC) $(SPECIAL_IDS)
 	@mkdir -p $(dir $@) $(BUILD)/data
 	{ printf '.include "$(SPECIAL_IDS)"\n'; $(PREPROC) $< charmap.txt | $(CPP) -I include -DMODERN=1 -DPORTABLE -DUBFIX - | $(PREPROC) -ie $< charmap.txt; } > $(BUILD)/data/$*.s
@@ -181,22 +197,8 @@ $(TARGET).nacp:
 # (Makefile_pc does it via $(shell mkdir ...) at parse time).
 $(shell mkdir -p $(BUILD)/obj/sound/songs $(BUILD)/obj/sound/songs/midi)
 
-ROOT := .
-MID2AGB := $(ROOT)/tools/mid2agb/mid2agb
 
-# Generate any missing song .s files from .mid (only mus_rg_encounter_gym_leader
-# is missing its .s in this fork; mid2agb regenerates it).
-$(BUILD)/songs.stamp: $(MID2AGB)
-	@mkdir -p $(BUILD)
-	@for mid in sound/songs/midi/*.mid; do \
-	  s="$${mid%.mid}.s"; \
-	  [ -f "$$s" ] || $(MID2AGB) "$$mid" "$$s"; \
-	done
-	@touch $@
-
-$(TARGET).nro: $(TARGET).elf | $(BUILD)/songs.stamp
-# Song .o files need their .s generated first (order-only: don't force rebuild).
-$(SONG_OBJS): | $(BUILD)/songs.stamp
+$(TARGET).nro: $(TARGET).elf
 
 clean:
 	rm -rf $(BUILD) $(TARGET).elf $(TARGET).nro $(TARGET).nacp

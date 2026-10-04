@@ -1254,7 +1254,7 @@ static void Cmd_if_equal_(void) // Same as if_equal.
     if (gAIScriptPtr[1] == AI_THINKING_STRUCT->funcResult)
         gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + 2);
     else
-        gAIScriptPtr += 6;
+        gAIScriptPtr += 6 + BS_PTR_ADJ(1);
 }
 
 static void Cmd_if_not_equal_(void) // Same as if_not_equal.
@@ -1262,7 +1262,7 @@ static void Cmd_if_not_equal_(void) // Same as if_not_equal.
     if (gAIScriptPtr[1] != AI_THINKING_STRUCT->funcResult)
         gAIScriptPtr = BS_READ_PTR(gAIScriptPtr + 2);
     else
-        gAIScriptPtr += 6;
+        gAIScriptPtr += 6 + BS_PTR_ADJ(1);
 }
 
 static void Cmd_if_user_goes(void)
