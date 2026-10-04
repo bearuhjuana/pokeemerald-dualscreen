@@ -198,7 +198,8 @@ $(TARGET).nacp:
 $(shell mkdir -p $(BUILD)/obj/sound/songs $(BUILD)/obj/sound/songs/midi)
 
 
-$(TARGET).nro: $(TARGET).elf
+$(TARGET).nro: $(TARGET).elf $(TARGET).nacp
+	$(ELF2NRO) $< $@ $(ELF2NRO_FLAGS)
 
 clean:
 	rm -rf $(BUILD) $(TARGET).elf $(TARGET).nro $(TARGET).nacp
