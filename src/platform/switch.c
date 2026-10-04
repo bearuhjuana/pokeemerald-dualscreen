@@ -21,6 +21,7 @@
 #include <time.h>
 
 #include "global.h"
+#include "main.h"
 #include "gba/syscall.h"
 #include "gba/flash_internal.h"
 #include "gba/io_reg.h"
