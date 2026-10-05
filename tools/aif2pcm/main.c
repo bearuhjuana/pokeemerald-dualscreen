@@ -538,6 +538,8 @@ struct Bytes *delta_compress(struct Bytes *pcm)
 
 			if (i >= pcm->length)
 			{
+				// The final odd sample still occupies this high-nibble byte.
+				j++;
 				break;
 			}
 			delta_index = get_delta_index(pcm->data[i++], base);
@@ -586,6 +588,11 @@ void aif2pcm(const char *aif_filename, const char *pcm_filename, bool compress)
 		free(aif_data.samples16);
 		aif_data.samples8 = converted_samples;
 	}
+
+	// Some source AIFFs declare one more frame than SSND actually stores.
+	// Keep loop-marker end points, but never advertise missing sample data.
+	if (aif_data.num_samples > aif_data.real_num_samples)
+		aif_data.num_samples = aif_data.real_num_samples;
 
 	int header_size = 0x10;
 	struct Bytes *pcm;

@@ -8,14 +8,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.io.IOException;
 import java.util.Arrays;
-
-import org.libsdl.app.SDLActivity;
 
 public final class GbaControlsView extends View {
     private static final int A = 1 << 0;
@@ -37,6 +34,7 @@ public final class GbaControlsView extends View {
     private int backgroundCount;
     private Bitmap border;
     private int pressed;
+    private boolean togglingControls;
     private final long createdAt = android.os.SystemClock.uptimeMillis();
 
     public GbaControlsView(Context context) {
@@ -101,7 +99,16 @@ public final class GbaControlsView extends View {
 
     private int controlsAt(float x, float y) {
         int result = 0;
-        int[] controls = {A, B, SELECT, START, RIGHT, LEFT, UP, DOWN, R, L};
+        int pad = unit();
+        float dx = x - sideWidth() * 2 / 3;
+        float dy = y - getHeight() * 7 / 10;
+        if (Math.abs(dx) < pad * 1.5f && Math.abs(dy) < pad * 1.5f) {
+            if (dx < -pad / 2f) result |= LEFT;
+            if (dx > pad / 2f) result |= RIGHT;
+            if (dy < -pad / 2f) result |= UP;
+            if (dy > pad / 2f) result |= DOWN;
+        }
+        int[] controls = {A, B, SELECT, START, R, L};
         for (int control : controls) {
             if (controlRect(control).contains(x, y)) {
                 result |= control;
@@ -110,34 +117,27 @@ public final class GbaControlsView extends View {
         return result;
     }
 
-    private int keyCode(int control) {
-        switch (control) {
-        case A:      return KeyEvent.KEYCODE_Z;
-        case B:      return KeyEvent.KEYCODE_X;
-        case SELECT: return KeyEvent.KEYCODE_BACKSLASH;
-        case START:  return KeyEvent.KEYCODE_ENTER;
-        case RIGHT:  return KeyEvent.KEYCODE_DPAD_RIGHT;
-        case LEFT:   return KeyEvent.KEYCODE_DPAD_LEFT;
-        case UP:     return KeyEvent.KEYCODE_DPAD_UP;
-        case DOWN:   return KeyEvent.KEYCODE_DPAD_DOWN;
-        case R:      return KeyEvent.KEYCODE_S;
-        case L:      return KeyEvent.KEYCODE_A;
-        default:     return KeyEvent.KEYCODE_UNKNOWN;
+    private void setPressed(int next) {
+        if (pressed != next) {
+            pressed = next;
+            setTouchKeys(next);
+            invalidate();
         }
     }
 
-    private void setPressed(int next) {
-        int changed = pressed ^ next;
-        int[] controls = {A, B, SELECT, START, RIGHT, LEFT, UP, DOWN, R, L};
-        for (int control : controls) {
-            if ((changed & control) != 0) {
-                int action = (next & control) != 0 ? KeyEvent.ACTION_DOWN : KeyEvent.ACTION_UP;
-                KeyEvent event = new KeyEvent(action, keyCode(control));
-                SDLActivity.handleKeyEvent(this, event.getKeyCode(), event, null);
-            }
-        }
-        pressed = next;
-        invalidate();
+    // Keep held touch input separate from the physical keyboard/controller.
+    public void releaseButtons() {
+        togglingControls = false;
+        setPressed(0);
+    }
+
+    private RectF toggleRect() {
+        float density = getResources().getDisplayMetrics().density;
+        float width = Math.min(140 * density, getWidth() * .4f);
+        float height = Math.min(40 * density, getHeight() * .1f);
+        float top = Math.min(8 * density, getHeight() * .02f);
+        return new RectF((getWidth() - width) / 2f, top,
+                         (getWidth() + width) / 2f, top + height);
     }
 
     private boolean touchControlsEnabled() {
@@ -146,16 +146,44 @@ public final class GbaControlsView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!touchControlsEnabled()) {
-            return false;
-        }
-        if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
-            setPressed(0);
+        int action = event.getActionMasked();
+        if (action == MotionEvent.ACTION_CANCEL) {
+            releaseButtons();
             return true;
         }
+        // This stays available on a phone even when a saved config hides the
+        // buttons, without requiring the second-display settings panel.
+        if (action == MotionEvent.ACTION_DOWN
+                && toggleRect().contains(event.getX(0), event.getY(0))) {
+            releaseButtons();
+            togglingControls = true;
+            return true;
+        }
+        if (togglingControls) {
+            if (action == MotionEvent.ACTION_UP) {
+                if (toggleRect().contains(event.getX(0), event.getY(0))) {
+                    DualScreenBridge.nativeSetPlatformSetting(
+                            DualScreenBridge.SETTING_TOUCH_CONTROLS,
+                            touchControlsEnabled() ? 0 : 1);
+                }
+                togglingControls = false;
+                invalidate();
+            }
+            return true;
+        }
+        if (!touchControlsEnabled()) {
+            releaseButtons();
+            return false;
+        }
+        // Leave touches on the game/menu outside the controls to SDL. Once a
+        // button gesture starts, all fingers contribute to its held mask.
+        if (action == MotionEvent.ACTION_DOWN
+                && controlsAt(event.getX(0), event.getY(0)) == 0) {
+            return false;
+        }
 
-        int releasedPointer = event.getActionMasked() == MotionEvent.ACTION_UP
-                || event.getActionMasked() == MotionEvent.ACTION_POINTER_UP
+        int releasedPointer = action == MotionEvent.ACTION_UP
+                || action == MotionEvent.ACTION_POINTER_UP
                 ? event.getActionIndex() : -1;
         int next = 0;
         for (int i = 0; i < event.getPointerCount(); i++) {
@@ -165,6 +193,16 @@ public final class GbaControlsView extends View {
         }
         setPressed(next);
         return true;
+    }
+
+    private void drawToggle(Canvas canvas) {
+        RectF rect = toggleRect();
+        fill.setColor(Color.argb(100, 0, 0, 0));
+        canvas.drawRoundRect(rect, rect.height() / 4, rect.height() / 4, fill);
+        text.setTextSize(Math.min(rect.height() * .45f, rect.width() / 9));
+        Paint.FontMetrics metrics = text.getFontMetrics();
+        canvas.drawText(touchControlsEnabled() ? "Hide buttons" : "Show buttons",
+                rect.centerX(), rect.centerY() - (metrics.ascent + metrics.descent) / 2, text);
     }
 
     private void drawControl(Canvas canvas, int control, String label) {
@@ -181,8 +219,11 @@ public final class GbaControlsView extends View {
     }
 
     private void drawBorder(Canvas canvas) {
-        if (getPlatformSetting(DualScreenBridge.SETTING_WIDESCREEN) != 0) {
-            return; // game fills the whole surface; nothing to frame
+        if (getPlatformSetting(DualScreenBridge.SETTING_WIDESCREEN) != 0
+                || isVoxelRendererActive()) {
+            // The GLES renderer uses the full surface, including its 2D
+            // fallback. Classic letterbox masks would cover the game's UI.
+            return;
         }
         // SDL letterboxes via its 240x160 logical size (non-integer scale),
         // so mask exactly the letterbox bars it leaves.
@@ -230,6 +271,8 @@ public final class GbaControlsView extends View {
         }
     }
 
+    private static native boolean isVoxelRendererActive();
+    private static native void setTouchKeys(int mask);
     private static native int getBorderBackground();
     private static native int getPlatformSetting(int setting);
 
@@ -243,7 +286,9 @@ public final class GbaControlsView extends View {
         if (android.os.SystemClock.uptimeMillis() - createdAt < 15000) {
             postInvalidateDelayed(200);
         }
+        drawToggle(canvas);
         if (!touchControlsEnabled()) {
+            setPressed(0);
             return;
         }
         drawControl(canvas, UP, null);
@@ -259,8 +304,15 @@ public final class GbaControlsView extends View {
     }
 
     @Override
+    protected void onDetachedFromWindow() {
+        releaseButtons();
+        super.onDetachedFromWindow();
+    }
+
+    @Override
     protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
+        releaseButtons();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             setSystemGestureExclusionRects(Arrays.asList(
                     new Rect(0, height / 2, width / 5, height),

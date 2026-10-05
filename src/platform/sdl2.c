@@ -71,7 +71,7 @@ static char sConfigPath[1024] = "pokeemerald.cfg";
 static u8 sBorderBackground;
 static bool sHasBorderBackgroundConfig;
 static u8 sBackgroundOrderVersion;
-// Dual-screen defaults: black background, touch controls hidden, battle
+// Dual-screen defaults: black background, Android touch controls shown, battle
 // menus on the bottom screen, fast-forward leaves the music at normal tempo.
 // The experimental Android ARM64 build starts in voxel mode. A saved
 // voxelRenderer=0 still selects classic 2D; other builds keep their defaults.
@@ -80,7 +80,12 @@ static u8 sBackgroundOrderVersion;
 #else
 #define DEFAULT_VOXEL_RENDERER 0
 #endif
-static u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {0, 4, 0, 1, 1, 10, 1, 0, 0, 0, 0, DEFAULT_VOXEL_RENDERER, 0, 0};
+#ifdef __ANDROID__
+#define DEFAULT_TOUCH_CONTROLS 1
+#else
+#define DEFAULT_TOUCH_CONTROLS 0
+#endif
+static u8 sPlatformSettings[PLATFORM_SETTING_COUNT] = {0, 4, 0, 1, 1, 10, 1, 0, DEFAULT_TOUCH_CONTROLS, 0, 0, DEFAULT_VOXEL_RENDERER, 0, 0};
 // The fast-forward speed as chosen in the SET tab, which is what belongs in the
 // config file. The R2 hotkey overrides the live setting without touching this,
 // so that StoreConfigFile - which writes every setting whenever any one of them
@@ -99,6 +104,10 @@ static bool sSkipAudioFrame = false;
 static Uint32 sAudioFrameBytes = 0;
 #ifdef __ANDROID__
 static SDL_GameController *androidController;
+// Touch holds have their own mask so releases cannot cancel physical input.
+static SDL_atomic_t sAndroidTouchKeys;
+// The actual renderer can differ from the saved setting after GLES fallback.
+static SDL_atomic_t sAndroidVoxelRendererActive;
 #endif
 
 extern void AgbMain(void);
@@ -316,6 +325,10 @@ int main(int argc, char **argv)
     }
 #ifdef VOXEL_CAPABLE
     } // end if (!gVoxelModeEnabled)
+#endif
+
+#if defined(__ANDROID__) && defined(VOXEL_CAPABLE)
+    SDL_AtomicSet(&sAndroidVoxelRendererActive, gVoxelModeEnabled ? 1 : 0);
 #endif
 
     if (sdlRenderer != NULL) {
@@ -1088,6 +1101,10 @@ u8 Platform_GetSetting(enum PlatformSetting setting)
 void Platform_SetSetting(enum PlatformSetting setting, u8 value)
 {
     sPlatformSettings[setting] = value;
+#ifdef __ANDROID__
+    if (setting == PLATFORM_SETTING_TOUCH_CONTROLS && value == 0)
+        SDL_AtomicSet(&sAndroidTouchKeys, 0);
+#endif
     // A speed chosen in the SET tab is the deliberate one, so it also becomes
     // what the R2 toggle restores and what gets written to the config.
     if (setting == PLATFORM_SETTING_FAST_FORWARD)
@@ -1121,6 +1138,16 @@ void Platform_SetSetting(enum PlatformSetting setting, u8 value)
 }
 
 #ifdef __ANDROID__
+JNIEXPORT jboolean JNICALL Java_com_pokeemerald_experimental_GbaControlsView_isVoxelRendererActive(JNIEnv *env, jclass clazz)
+{
+    return SDL_AtomicGet(&sAndroidVoxelRendererActive) ? JNI_TRUE : JNI_FALSE;
+}
+
+JNIEXPORT void JNICALL Java_com_pokeemerald_experimental_GbaControlsView_setTouchKeys(JNIEnv *env, jclass clazz, jint mask)
+{
+    SDL_AtomicSet(&sAndroidTouchKeys, mask & 0x3FF);
+}
+
 JNIEXPORT jint JNICALL Java_com_pokeemerald_experimental_GbaControlsView_getBorderBackground(JNIEnv *env, jclass clazz)
 {
     return Platform_GetBorderBackground();
@@ -1473,7 +1500,13 @@ void ProcessEvents(void)
             isRunning = false;
             break;
 #ifdef __ANDROID__
+        case SDL_APP_WILLENTERBACKGROUND:
+        case SDL_APP_DIDENTERBACKGROUND:
+            SDL_AtomicSet(&sAndroidTouchKeys, 0);
+            break;
         case SDL_WINDOWEVENT:
+            if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+                SDL_AtomicSet(&sAndroidTouchKeys, 0);
             if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED
              || event.window.event == SDL_WINDOWEVENT_RESIZED)
                 ApplyDisplayMode();
@@ -1680,7 +1713,9 @@ u16 Platform_GetKeyInput(void)
     u16 gamepadKeys = GetXInputKeys();
     return gamepadKeys | keyboardKeys | DualScreen_ConsumeVirtualKeys();
 #elif defined(__ANDROID__)
-    return keyboardKeys | controllerKeys | controllerAxisKeys | DualScreen_ConsumeVirtualKeys();
+    u16 heldTouchKeys = sPlatformSettings[PLATFORM_SETTING_TOUCH_CONTROLS]
+                      ? (u16)SDL_AtomicGet(&sAndroidTouchKeys) : 0;
+    return keyboardKeys | controllerKeys | controllerAxisKeys | heldTouchKeys | DualScreen_ConsumeVirtualKeys();
 #endif
 
     return keyboardKeys | DualScreen_ConsumeVirtualKeys();

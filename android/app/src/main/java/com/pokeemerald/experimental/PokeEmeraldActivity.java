@@ -91,6 +91,9 @@ public class PokeEmeraldActivity extends SDLActivity {
 
     @Override
     protected void onPause() {
+        if (controls != null) {
+            controls.releaseButtons();
+        }
         snapshotHandler.removeCallbacks(snapshotPump);
         navHandler.removeCallbacks(navPump);
         dismissBottomScreen();
@@ -161,6 +164,9 @@ public class PokeEmeraldActivity extends SDLActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (!hasFocus) {
+            if (controls != null) {
+                controls.releaseButtons();
+            }
             return;
         }
 

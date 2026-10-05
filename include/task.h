@@ -18,6 +18,9 @@ struct Task
     u8 next;
     u8 priority;
     s16 data[NUM_TASK_DATA];
+#ifdef PORTABLE_64BIT
+    TaskFunc followupFunc;
+#endif
 };
 
 extern struct Task gTasks[];
@@ -34,5 +37,11 @@ u8 FindTaskIdByFunc(TaskFunc func);
 u8 GetTaskCount(void);
 void SetWordTaskArg(u8 taskId, u8 dataElem, u32 value);
 u32 GetWordTaskArg(u8 taskId, u8 dataElem);
+
+#ifdef PORTABLE_64BIT
+// Pointer arguments occupy four halfwords instead of a 32-bit word.
+void SetPointerTaskArg(u8 taskId, u8 dataElem, void *value);
+void *GetPointerTaskArg(u8 taskId, u8 dataElem);
+#endif
 
 #endif // GUARD_TASK_H

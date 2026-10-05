@@ -18,6 +18,9 @@ void ResetTasks(void)
         gTasks[i].next = i + 1;
         gTasks[i].priority = -1;
         memset(gTasks[i].data, 0, sizeof(gTasks[i].data));
+#ifdef PORTABLE_64BIT
+        gTasks[i].followupFunc = NULL;
+#endif
     }
 
     gTasks[0].prev = HEAD_SENTINEL;
@@ -36,6 +39,9 @@ u8 CreateTask(TaskFunc func, u8 priority)
             gTasks[i].priority = priority;
             InsertTask(i);
             memset(gTasks[i].data, 0, sizeof(gTasks[i].data));
+#ifdef PORTABLE_64BIT
+            gTasks[i].followupFunc = NULL;
+#endif
             gTasks[i].isActive = TRUE;
             return i;
         }
@@ -138,18 +144,27 @@ void TaskDummy(u8 taskId)
 
 void SetTaskFuncWithFollowupFunc(u8 taskId, TaskFunc func, TaskFunc followupFunc)
 {
+#ifdef PORTABLE_64BIT
+    gTasks[taskId].followupFunc = followupFunc;
+    gTasks[taskId].func = func;
+#else
     u8 followupFuncIndex = NUM_TASK_DATA - 2; // Should be const.
 
     gTasks[taskId].data[followupFuncIndex] = (s16)((u32)followupFunc);
     gTasks[taskId].data[followupFuncIndex + 1] = (s16)((u32)followupFunc >> 16); // Store followupFunc as two half-words in the data array.
     gTasks[taskId].func = func;
+#endif
 }
 
 void SwitchTaskToFollowupFunc(u8 taskId)
 {
+#ifdef PORTABLE_64BIT
+    gTasks[taskId].func = gTasks[taskId].followupFunc;
+#else
     u8 followupFuncIndex = NUM_TASK_DATA - 2; // Should be const.
 
     gTasks[taskId].func = (TaskFunc)((u16)(gTasks[taskId].data[followupFuncIndex]) | (gTasks[taskId].data[followupFuncIndex + 1] << 16));
+#endif
 }
 
 bool8 FuncIsActiveTask(TaskFunc func)
@@ -202,3 +217,21 @@ u32 GetWordTaskArg(u8 taskId, u8 dataElem)
     else
         return 0;
 }
+
+#ifdef PORTABLE_64BIT
+void SetPointerTaskArg(u8 taskId, u8 dataElem, void *value)
+{
+    if (dataElem <= NUM_TASK_DATA - sizeof(value) / sizeof(s16))
+        memcpy(&gTasks[taskId].data[dataElem], &value, sizeof(value));
+}
+
+void *GetPointerTaskArg(u8 taskId, u8 dataElem)
+{
+    void *value = NULL;
+
+    if (dataElem <= NUM_TASK_DATA - sizeof(value) / sizeof(s16))
+        memcpy(&value, &gTasks[taskId].data[dataElem], sizeof(value));
+
+    return value;
+}
+#endif

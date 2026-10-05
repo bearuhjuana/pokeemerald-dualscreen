@@ -6740,6 +6740,13 @@ const u8 *GetTrainerPartnerName(void)
     }
 }
 
+#ifdef PORTABLE_64BIT
+#define READ_PTR_FROM_TASK(taskId, dataId) GetPointerTaskArg(taskId, dataId)
+#define STORE_PTR_IN_TASK(ptr, taskId, dataId) SetPointerTaskArg(taskId, dataId, ptr)
+// data[0..3] holds the full native Sprite pointer.
+#define sAnimId    data[4]
+#define sAnimDelay data[5]
+#else
 #define READ_PTR_FROM_TASK(taskId, dataId)                      \
     (void *)(                                                   \
     ((u16)(gTasks[taskId].data[dataId]) |                       \
@@ -6753,6 +6760,7 @@ const u8 *GetTrainerPartnerName(void)
 
 #define sAnimId    data[2]
 #define sAnimDelay data[3]
+#endif
 
 static void Task_AnimateAfterDelay(u8 taskId)
 {

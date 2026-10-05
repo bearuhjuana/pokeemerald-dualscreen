@@ -893,16 +893,25 @@ u8 GetSpeciesBackAnimSet(u16 species)
 #define tState  data[0]
 #define tPtrHi  data[1]
 #define tPtrLo  data[2]
+#ifdef PORTABLE_64BIT
+// data[1..4] holds the full native Sprite pointer.
+#define tAnimId data[5]
+#define tBattlerId data[6]
+#define tSpeciesId data[7]
+#else
 #define tAnimId data[3]
 #define tBattlerId data[4]
 #define tSpeciesId data[5]
+#endif
 
 // BUG: In vanilla, tPtrLo is read as an s16, so if bit 15 of the
 // address were to be set it would cause the pointer to be read
 // as 0xFFFFXXXX instead of the desired 0x02YYXXXX.
 // By dumb luck, this is not an issue in vanilla. However,
 // changing the link order revealed this bug.
-#if MODERN || defined(BUGFIX)
+#ifdef PORTABLE_64BIT
+#define ANIM_SPRITE(taskId)   ((struct Sprite *)GetPointerTaskArg(taskId, 1))
+#elif MODERN || defined(BUGFIX)
 #define ANIM_SPRITE(taskId)   ((struct Sprite *)((gTasks[taskId].tPtrHi << 16) | ((u16)gTasks[taskId].tPtrLo)))
 #else
 #define ANIM_SPRITE(taskId)   ((struct Sprite *)((gTasks[taskId].tPtrHi << 16) | (gTasks[taskId].tPtrLo)))
@@ -941,8 +950,12 @@ static void Task_HandleMonAnimation(u8 taskId)
 void LaunchAnimationTaskForFrontSprite(struct Sprite *sprite, u8 frontAnimId)
 {
     u8 taskId = CreateTask(Task_HandleMonAnimation, 128);
+#ifdef PORTABLE_64BIT
+    SetPointerTaskArg(taskId, 1, sprite);
+#else
     gTasks[taskId].tPtrHi = (u32)(sprite) >> 16;
     gTasks[taskId].tPtrLo = (u32)(sprite);
+#endif
     gTasks[taskId].tAnimId = frontAnimId;
 }
 
@@ -958,8 +971,12 @@ void LaunchAnimationTaskForBackSprite(struct Sprite *sprite, u8 backAnimSet)
     u8 nature, taskId, animId, battler;
 
     taskId = CreateTask(Task_HandleMonAnimation, 128);
+#ifdef PORTABLE_64BIT
+    SetPointerTaskArg(taskId, 1, sprite);
+#else
     gTasks[taskId].tPtrHi = (u32)(sprite) >> 16;
     gTasks[taskId].tPtrLo = (u32)(sprite);
+#endif
 
     battler = sprite->data[0];
     nature = GetNature(&gPlayerParty[gBattlerPartyIndexes[battler]]);

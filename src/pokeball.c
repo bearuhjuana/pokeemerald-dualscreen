@@ -669,7 +669,9 @@ static void Task_PlayCryWhenReleasedFromBall(u8 taskId)
     u16 species = gTasks[taskId].tCryTaskSpecies;
     u8 battler = gTasks[taskId].tCryTaskBattler;
     u8 monSpriteId = gTasks[taskId].tCryTaskMonSpriteId;
-#ifndef PORTABLE
+#ifdef PORTABLE_64BIT
+    struct Pokemon *mon = GetPointerTaskArg(taskId, 5);
+#elif !defined(PORTABLE)
     struct Pokemon *mon = (void *)(u32)((gTasks[taskId].tCryTaskMonPtr1 << 16) | (u16)(gTasks[taskId].tCryTaskMonPtr2));
 #else
     struct Pokemon *mon = (void *)(u32)(((u16)gTasks[taskId].tCryTaskMonPtr1 << 16) | (u16)(gTasks[taskId].tCryTaskMonPtr2));
@@ -811,8 +813,12 @@ static void SpriteCB_ReleaseMonFromBall(struct Sprite *sprite)
         gTasks[taskId].tCryTaskWantedCry = wantedCryCase;
         gTasks[taskId].tCryTaskBattler = battler;
         gTasks[taskId].tCryTaskMonSpriteId = gBattlerSpriteIds[sprite->sBattler];
+#ifdef PORTABLE_64BIT
+        SetPointerTaskArg(taskId, 5, mon);
+#else
         gTasks[taskId].tCryTaskMonPtr1 = (u32)(mon) >> 16;
         gTasks[taskId].tCryTaskMonPtr2 = (u32)(mon);
+#endif
         gTasks[taskId].tCryTaskState = 0;
     }
 

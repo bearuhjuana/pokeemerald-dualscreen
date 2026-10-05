@@ -393,7 +393,8 @@ void GeneratePokemonSampleAudio(struct SoundMixerState *mixer, struct MixerSourc
                     samplesLeftInWav -= newCoarsePos;
                     if (samplesLeftInWav <= 0) {
                         if (loopLen != 0) {
-                            current = wav->data + wav->loopStart;
+                            // Compressed channels store a sample index in current.
+                            current = (s8 *)(uintptr_t)wav->loopStart;
                             newCoarsePos = -samplesLeftInWav;
                             samplesLeftInWav += loopLen;
                             while (samplesLeftInWav <= 0) {
@@ -465,23 +466,26 @@ static s8 sub_82DF758(struct MixerSource *chan, u32 current) {
     u32 blockOffset = current >> 6; // current / 64
     u8 * blockPtr;
     int i;
-    //In route 102 lotad wild battle when it growls crashes the game because it decompresses out of bounds data
-    //I gave it its own printf error so it wouldn't get forgotten as this needs a more proper fix
-    if (chan->wav->size < blockOffset * 0x21) {
-            DBGPRINTF("Out of bounds decompress in %s wav->size = %u blockPtr = %u\n", __func__, chan->wav->size, blockOffset * 0x21);
-            return gBDPCMBlockBuffer[current & 63];
-    }
+    // aif2pcm stores the last sample index, including the interpolation sample.
+    // Check decoded samples, rather than comparing them with encoded bytes.
+    if (current > chan->wav->size)
+        return 0;
     
     if(chan->blockCount != blockOffset) { // decode block if not decoded
         s32 s;
+        u32 samplesInBlock = chan->wav->size - (blockOffset << 6);
+        samplesInBlock = samplesInBlock >= 63 ? 64 : samplesInBlock + 1;
         chan->blockCount = blockOffset;
         blockPtr = chan->wav->data + chan->blockCount * 0x21;
         gBDPCMBlockBuffer[0] = s = (s8)*blockPtr++;
-        gBDPCMBlockBuffer[1] = s += gDeltaEncodingTable[*blockPtr++ & 0xF];
-        for(i = 2; i < 64; i+=2) {
+        if (samplesInBlock > 1)
+            gBDPCMBlockBuffer[1] = s += gDeltaEncodingTable[*blockPtr++ & 0xF];
+        // The final block contains only the bytes needed for its samples.
+        for(i = 2; i < samplesInBlock; i+=2) {
             u32 temp = *blockPtr++;
             gBDPCMBlockBuffer[i] = s += gDeltaEncodingTable[temp >> 4];
-            gBDPCMBlockBuffer[i+1] = s += gDeltaEncodingTable[temp & 0xF];
+            if (i + 1 < samplesInBlock)
+                gBDPCMBlockBuffer[i+1] = s += gDeltaEncodingTable[temp & 0xF];
         }
     }
     return gBDPCMBlockBuffer[current & 63]; // index same as current % 64
